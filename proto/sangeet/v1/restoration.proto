@@ -1,0 +1,136 @@
+syntax = "proto3";
+
+package sangeet.v1;
+
+option swift_prefix = "SangeetV1";
+
+// Service defining the interaction between the Swift front-end/audio engine
+// and the Python ML inference daemon.
+service RestorationService {
+  // Daemon capabilities and version info
+  rpc GetCapabilities(Empty) returns (Capabilities);
+
+  // List loaded models and their status
+  rpc ListModels(Empty) returns (ModelList);
+
+  // Trigger model download/load; streams progress
+  rpc PrepareModels(PrepareRequest) returns (stream PrepareProgress);
+
+  // Analyze a file and return the recipe the router would choose
+  rpc AnalyzeAudio(AnalyzeRequest) returns (AnalysisResult);
+
+  // Start a restoration job; streams progress until done
+  rpc StartRestoration(RestorationRequest) returns (stream RestorationProgress);
+
+  // Cancel a running job
+  rpc CancelJob(JobId) returns (Empty);
+
+  // Graceful shutdown
+  rpc Shutdown(Empty) returns (Empty);
+}
+
+// Representing an empty payload
+message Empty {}
+
+// Capabilities of the running daemon process
+message Capabilities {
+  string daemon_version = 1;
+  repeated string supported_audio_formats = 2;
+  bool mps_available = 3;
+  bool requires_user_consent = 4;
+}
+
+// Status and details of a restoration ML model
+message Model {
+  string name = 1;
+  string version = 2;
+  string status = 3;
+  string sha256 = 4;
+}
+
+// A collection of ML models and their statuses
+message ModelList {
+  repeated Model models = 1;
+}
+
+// Request to download and pre-load specific models
+message PrepareRequest {
+  repeated string model_names = 1;
+}
+
+// Progress update during model preparation
+message PrepareProgress {
+  string model_name = 1;
+  optional double percent_complete = 2; // 0.0 to 100.0 (0.0 is valid)
+  string status = 3;
+}
+
+// Request to analyze a target audio file
+message AnalyzeRequest {
+  string input_path = 1; // Absolute path to input file
+}
+
+// Culturally-aware audio degradation features extracted during analysis
+message AudioFeatures {
+  int32 sample_rate = 1; // Sample rate in Hz
+  int32 channels = 2;    // Number of channels (mono/stereo only in V1)
+  double duration_s = 3; // Duration in seconds
+
+  optional double snr_estimate_db = 4;      // SNR estimate in dB (0.0 is a valid noisy value)
+  optional double spectral_centroid_hz = 5; // Spectral centroid in Hz
+  
+  bool hum_50hz_present = 6;  // Mains hum detected at 50Hz and harmonics
+  bool hum_60hz_present = 7;  // Mains hum detected at 60Hz and harmonics
+  
+  optional double clipping_rate = 8;     // Fraction of clipped samples [0.0, 1.0] (0.0 is clean/valid)
+  optional double click_rate_per_s = 9;  // Transient clicks per second (0.0 is clean/valid)
+  optional double hf_rolloff_hz = 10;    // High-frequency rolloff threshold in Hz
+  optional double lufs_integrated = 11;  // Integrated loudness in LUFS
+}
+
+// Dynamic parameters for a specific restoration stage
+message StageParams {
+  map<string, double> params = 1; // Dynamic params (e.g. thresholds, frequency limits)
+}
+
+// Definition of a single stage invocation in the signal chain
+message StageInvocation {
+  string stage_name = 1;              // Unique stage identifier (snake_case)
+  optional double strength = 2;       // Processing intensity [0.0, 1.0] (0.0 is bypass/valid)
+  optional StageParams params = 3;    // Optional stage-specific tuning parameters
+}
+
+// Ordered pipeline recipe of restoration stages
+message RestorationRecipe {
+  repeated StageInvocation stages = 1; // Sequence of operations to apply
+}
+
+// Result of analyzing an audio file
+message AnalysisResult {
+  AudioFeatures features = 1;                // Extracted audio degradation indicators
+  RestorationRecipe suggested_recipe = 2;    // Optimized culturally-aware restoration recipe
+}
+
+// Request to initiate the restoration job
+message RestorationRequest {
+  string input_path = 1;                 // Absolute path to source audio
+  string output_path = 2;                // Absolute path where restored audio will be saved
+  RestorationRecipe recipe = 3;          // Ordered set of stages to apply
+  optional double target_loudness_lufs = 4; // Target loudness, e.g., -14.0 or -9.0 LUFS
+  optional string output_format = 5;     // Desired format, e.g. "WAV", "FLAC" (defaults to input format if unset)
+}
+
+// Real-time progress update stream during restoration execution
+message RestorationProgress {
+  string request_id = 1;                // UUID correlating the job
+  string stage_name = 2;                // Active stage name
+  optional double percent_complete = 3; // Percentage complete [0.0, 100.0]
+  optional double elapsed_s = 4;        // Seconds spent so far
+  optional double eta_s = 5;            // Estimated seconds remaining
+  optional string preview_audio_path = 6; // Optional intermediate preview audio path for A/B compare
+}
+
+// Stable identifier for cancelling or tracking a job
+message JobId {
+  string job_id = 1; // UUID representing the job
+}
