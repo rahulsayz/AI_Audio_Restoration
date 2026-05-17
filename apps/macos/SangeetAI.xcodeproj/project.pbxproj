@@ -1,0 +1,414 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		11A000112C4B7D26008E1A0F /* SangeetAIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A000022C4B7D26008E1A0F /* SangeetAIApp.swift */; };
+		11A000122C4B7D26008E1A0F /* RestorationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A000032C4B7D26008E1A0F /* RestorationView.swift */; };
+		11A000132C4B7D26008E1A0F /* RestorationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A000042C4B7D26008E1A0F /* RestorationViewModel.swift */; };
+		11A000142C4B7D26008E1A0F /* VisualEffects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A000052C4B7D26008E1A0F /* VisualEffects.swift */; };
+		11A000152C4B7D26008E1A0F /* SangeetAITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A000062C4B7D26008E1A0F /* SangeetAITests.swift */; };
+		11A000162C4B7D26008E1A0F /* AudioEngine in Frameworks */ = {isa = PBXBuildFile; productRef = 11A0000A2C4B7D26008E1A0F /* AudioEngine */; };
+		11A000172C4B7D26008E1A0F /* AudioEngine in Frameworks */ = {isa = PBXBuildFile; productRef = 11A0000A2C4B7D26008E1A0F /* AudioEngine */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		11A000202C4B7D26008E1A0F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 11A000002C4B7D26008E1A0F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 11A000072C4B7D26008E1A0F;
+			remoteInfo = SangeetAI;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		11A000022C4B7D26008E1A0F /* SangeetAIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SangeetAIApp.swift; sourceTree = "<group>"; };
+		11A000032C4B7D26008E1A0F /* RestorationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestorationView.swift; sourceTree = "<group>"; };
+		11A000042C4B7D26008E1A0F /* RestorationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestorationViewModel.swift; sourceTree = "<group>"; };
+		11A000052C4B7D26008E1A0F /* VisualEffects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualEffects.swift; sourceTree = "<group>"; };
+		11A000062C4B7D26008E1A0F /* SangeetAITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SangeetAITests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		11A000302C4B7D26008E1A0F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				11A000162C4B7D26008E1A0F /* AudioEngine in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		11A000312C4B7D26008E1A0F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				11A000172C4B7D26008E1A0F /* AudioEngine in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		11A000402C4B7D26008E1A0F = {
+			isa = PBXGroup;
+			children = (
+				11A000412C4B7D26008E1A0F /* Sources */,
+				11A000422C4B7D26008E1A0F /* Tests */,
+				11A000432C4B7D26008E1A0F /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		11A000412C4B7D26008E1A0F /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				11A000022C4B7D26008E1A0F /* SangeetAIApp.swift */,
+				11A000032C4B7D26008E1A0F /* RestorationView.swift */,
+				11A000042C4B7D26008E1A0F /* RestorationViewModel.swift */,
+				11A000052C4B7D26008E1A0F /* VisualEffects.swift */,
+			);
+			path = Sources/SangeetAI;
+			sourceTree = "<group>";
+		};
+		11A000422C4B7D26008E1A0F /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				11A000062C4B7D26008E1A0F /* SangeetAITests.swift */,
+			);
+			path = Tests/SangeetAITests;
+			sourceTree = "<group>";
+		};
+		11A000432C4B7D26008E1A0F /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		11A000072C4B7D26008E1A0F /* SangeetAI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 11A000502C4B7D26008E1A0F /* Build configuration list for PBXNativeTarget "SangeetAI" */;
+			buildPhases = (
+				11A000602C4B7D26008E1A0F /* Sources */,
+				11A000302C4B7D26008E1A0F /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SangeetAI;
+			packageProductDependencies = (
+				11A0000A2C4B7D26008E1A0F /* AudioEngine */,
+			);
+			productName = SangeetAI;
+			productType = "com.apple.product-type.application";
+		};
+		11A000082C4B7D26008E1A0F /* SangeetAITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 11A000512C4B7D26008E1A0F /* Build configuration list for PBXNativeTarget "SangeetAITests" */;
+			buildPhases = (
+				11A000612C4B7D26008E1A0F /* Sources */,
+				11A000312C4B7D26008E1A0F /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				11A000212C4B7D26008E1A0F /* PBXTargetDependency */,
+			);
+			name = SangeetAITests;
+			packageProductDependencies = (
+				11A0000A2C4B7D26008E1A0F /* AudioEngine */,
+			);
+			productName = SangeetAITests;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		11A000002C4B7D26008E1A0F /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 1540;
+				TargetAttributes = {
+					11A000072C4B7D26008E1A0F = {
+						CreatedOnToolsVersion = 15.4;
+					};
+					11A000082C4B7D26008E1A0F = {
+						CreatedOnToolsVersion = 15.4;
+					};
+				};
+			};
+			buildConfigurationList = 11A000522C4B7D26008E1A0F /* Build configuration list for PBXProject "SangeetAI" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 11A000402C4B7D26008E1A0F;
+			packageReferences = (
+				11A000092C4B7D26008E1A0F /* XCRemoteSwiftPackageReference */,
+			);
+			productRefGroup = 11A000432C4B7D26008E1A0F /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				11A000072C4B7D26008E1A0F /* SangeetAI */,
+				11A000082C4B7D26008E1A0F /* SangeetAITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		11A000602C4B7D26008E1A0F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				11A000112C4B7D26008E1A0F /* SangeetAIApp.swift in Sources */,
+				11A000122C4B7D26008E1A0F /* RestorationView.swift in Sources */,
+				11A000132C4B7D26008E1A0F /* RestorationViewModel.swift in Sources */,
+				11A000142C4B7D26008E1A0F /* VisualEffects.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		11A000612C4B7D26008E1A0F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				11A000152C4B7D26008E1A0F /* SangeetAITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		11A000212C4B7D26008E1A0F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 11A000072C4B7D26008E1A0F /* SangeetAI */;
+			targetProxy = 11A000202C4B7D26008E1A0F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		11A000712C4B7D26008E1A0F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_ACTUAL = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		11A000722C4B7D26008E1A0F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_ACTUAL = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		11A000732C4B7D26008E1A0F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = "";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ai.sangeet.SangeetAI;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.10;
+			};
+			name = Debug;
+		};
+		11A000742C4B7D26008E1A0F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = "";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ai.sangeet.SangeetAI;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.10;
+			};
+			name = Release;
+		};
+		11A000752C4B7D26008E1A0F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ai.sangeet.SangeetAITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.10;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SangeetAI.app/Contents/MacOS/SangeetAI";
+			};
+			name = Debug;
+		};
+		11A000762C4B7D26008E1A0F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ai.sangeet.SangeetAITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.10;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SangeetAI.app/Contents/MacOS/SangeetAI";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		11A000502C4B7D26008E1A0F /* Build configuration list for PBXNativeTarget "SangeetAI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				11A000732C4B7D26008E1A0F /* Debug */,
+				11A000742C4B7D26008E1A0F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		11A000512C4B7D26008E1A0F /* Build configuration list for PBXNativeTarget "SangeetAITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				11A000752C4B7D26008E1A0F /* Debug */,
+				11A000762C4B7D26008E1A0F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		11A000522C4B7D26008E1A0F /* Build configuration list for PBXProject "SangeetAI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				11A000712C4B7D26008E1A0F /* Debug */,
+				11A000722C4B7D26008E1A0F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		11A000092C4B7D26008E1A0F /* XCRemoteSwiftPackageReference */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "packages/audio-engine";
+			requirement = {
+				kind = localPackage;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin PBXPackageProductDependency section */
+		11A0000A2C4B7D26008E1A0F /* AudioEngine */ = {
+			isa = PBXPackageProductDependency;
+			package = 11A000092C4B7D26008E1A0F /* XCRemoteSwiftPackageReference */;
+			productName = AudioEngine;
+		};
+/* End PBXPackageProductDependency section */
+	};
+	rootObject = 11A000002C4B7D26008E1A0F /* Project object */;
+}
