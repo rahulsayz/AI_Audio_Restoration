@@ -36,48 +36,27 @@ struct ComparePlayerView: View {
                         }
                     }
                     
-                    // Compact Timeline & Scrubbing Slider
-                    VStack(spacing: 4) {
-                        GeometryReader { geo in
-                            ZStack(alignment: .leading) {
-                                // Background Track
-                                RoundedRectangle(cornerRadius: 3)
-                                    .fill(Color.white.opacity(0.1))
-                                    .frame(height: 6)
-                                
-                                // Completed Progress
-                                RoundedRectangle(cornerRadius: 3)
-                                    .fill(viewModel.playerOriginalActive ? Color.gray : RestorationTheme.saffron)
-                                    .frame(width: geo.size.width * CGFloat(viewModel.playerProgress), height: 6)
-                                    .shadow(color: (viewModel.playerOriginalActive ? Color.gray : RestorationTheme.saffron).opacity(0.3), radius: 3, x: 0, y: 0)
-                                
-                                // Scrubbing Handle
-                                Circle()
-                                    .fill(.white)
-                                    .frame(width: 12, height: 12)
-                                    .offset(x: geo.size.width * CGFloat(viewModel.playerProgress) - 6)
-                            }
-                            .contentShape(Rectangle())
-                            .gesture(
-                                DragGesture(minimumDistance: 0)
-                                    .onChanged { value in
-                                        let percent = Double(max(0, min(value.location.x / geo.size.width, 1)))
-                                        viewModel.seekPlayer(toPercent: percent)
-                                    }
-                            )
+                    // Stacked Dual-Waveform Display
+                    StackedWaveformView(
+                        originalAmplitudes: viewModel.originalAmplitudes,
+                        restoredAmplitudes: viewModel.restoredAmplitudes,
+                        progress: viewModel.playerProgress,
+                        isOriginalActive: viewModel.playerOriginalActive,
+                        restoredColor: viewModel.selectedPreset == .streaming ? RestorationTheme.neonTeal : RestorationTheme.saffron,
+                        onSeek: { percent in
+                            viewModel.seekPlayer(toPercent: percent)
                         }
-                        .frame(height: 12)
-                        
-                        // Time Counter labels
-                        HStack {
-                            Text(formatTime(viewModel.playerCurrentTime))
-                            Spacer()
-                            Text(formatTime(viewModel.playerTotalDuration))
-                        }
-                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                        .foregroundStyle(RestorationTheme.subtleText)
+                    )
+                    
+                    // Time Counter labels
+                    HStack {
+                        Text(formatTime(viewModel.playerCurrentTime))
+                        Spacer()
+                        Text(formatTime(viewModel.playerTotalDuration))
                     }
-                    .padding(.top, 4)
+                    .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(RestorationTheme.subtleText)
+                    .padding(.top, -4)
                     
                     // Player Controls Row
                     HStack(spacing: 20) {

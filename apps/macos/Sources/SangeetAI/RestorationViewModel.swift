@@ -43,6 +43,8 @@ public final class RestorationViewModel: ObservableObject {
     @Published public var isPlayerPreparing: Bool = false
     @Published public var originalLUFSVal: Double? = nil
     @Published public var restoredLUFSVal: Double? = nil
+    @Published public var originalAmplitudes: [Float] = []
+    @Published public var restoredAmplitudes: [Float] = []
     
     private var player: SynchronizedAudioPlayer? = nil
     private var database: LibraryDatabase? = nil
@@ -415,9 +417,14 @@ public final class RestorationViewModel: ObservableObject {
                 let targetLUFS = measuredLUFS ?? -14.0
                 try await p.prepare(originalURL: originalURL, restoredURL: restoredURL, restoredLUFS: targetLUFS)
                 
+                let origAmps = WaveformGenerator.generateAmplitudes(from: originalURL, targetPoints: 80)
+                let restAmps = WaveformGenerator.generateAmplitudes(from: restoredURL, targetPoints: 80)
+                
                 await MainActor.run {
                     self.player = p
                     self.originalLUFSVal = p.originalLUFS
+                    self.originalAmplitudes = origAmps
+                    self.restoredAmplitudes = restAmps
                     self.restoredLUFSVal = p.restoredLUFS
                     self.playerOriginalActive = p.isOriginalActive
                     self.playerVolumeMatchActive = p.isVolumeMatchEnabled
@@ -454,6 +461,8 @@ public final class RestorationViewModel: ObservableObject {
         isPlayerPreparing = false
         originalLUFSVal = nil
         restoredLUFSVal = nil
+        originalAmplitudes = []
+        restoredAmplitudes = []
     }
     
     public func togglePlayback() {
