@@ -720,9 +720,10 @@ public struct RestorationView: View {
 
 // MARK: - SwiftUI Previews
 
+#if DEBUG
 #Preview("Empty State") {
     let mockVM = RestorationViewModel()
-    return RestorationView(viewModel: mockVM)
+    RestorationView(viewModel: mockVM)
 }
 
 #Preview("Loaded State") {
@@ -753,7 +754,7 @@ public struct RestorationView: View {
         duration: "3:32",
         analysisResult: analysis
     )
-    return RestorationView(viewModel: mockVM)
+    RestorationView(viewModel: mockVM)
 }
 
 #Preview("Processing State") {
@@ -766,5 +767,6 @@ public struct RestorationView: View {
         progress: 0.47,
         currentStage: "Removing Broadband Noise..."
     )
-    return RestorationView(viewModel: mockVM)
+    RestorationView(viewModel: mockVM)
 }
+#endif

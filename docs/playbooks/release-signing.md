@@ -1,64 +1,105 @@
-# Playbook - Cryptographic Release Signing for Sangeet AI Updates
+# Release Signing and Notarization Playbook — Sangeet AI
 
-Sangeet AI uses **Sparkle 2.x** with EdDSA (Ed25519) signatures to guarantee the authenticity of software updates. When the app detects an update, it validates the update bundle's signature against our embedded public key. If the signature is missing or incorrect, the update is rejected to prevent tampering.
-
----
-
-## 1. Key Generation and Storage
-
-The key generation tool automatically stores the private signing key inside the macOS Keychain. This ensures that the private key is encrypted at rest, linked to your user account, and **never enters the Git repository**.
-
-* **Key Type**: Ed25519 (EdDSA)
-* **Keychain Service**: `Private key for signing Sparkle updates`
-* **Keychain Account**: `ed25519`
-* **Public Key**: `thhl0WF2JAWTfEHllsA84pVyObZ+ilt+hORgW+5Z+/k=`
-* **Embedded Configuration**: Declared in Sangeet AI's target build settings (`project.pbxproj`) as `INFOPLIST_KEY_SUPublicEDKey`.
+This playbook guides developers through setting up, signing, notarizing, packaging, and verifying a production release DMG for Sangeet AI.
 
 ---
 
-## 2. Backing Up and Transferring the Private Key
+## 1. Environment Setup (Credentials)
 
-Because the private key is stored in your login keychain, it is safe from ordinary data exposure. However, if your development machine is lost or replaced, you must have a backup to sign future updates.
-
-### Exporting the Key
-Run this command to export your private key to a secure file. 
-
-> [!CAUTION]
-> Treat the exported private key file with the highest security. **Never commit it to git, upload it to slack, or send it over email.** Store it in an encrypted password manager or a secure off-line physical drive.
+Apple's modern `notarytool` requires Developer credentials to submit signed app bundles or DMG files for notarization. In our orchestration scripts, these are read directly from system environment variables:
 
 ```bash
-# Export from Keychain to a secure local file (outside the workspace)
-/Users/rahulchaturvedi/Library/Developer/Xcode/DerivedData/SangeetAI-degymxqjqeetrkewkhkyppveapmg/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys -x ~/.sangeet-keys/sangeet-private-key.key
+export APPLE_ID="your-developer-email@domain.com"
+export APPLE_TEAM_ID="10_CHARACTER_TEAM_ID"
+export APPLE_APP_PASSWORD="xxxx-xxxx-xxxx-xxxx" # App-specific password generated via appleid.apple.com
 ```
 
-### Importing the Key to a New Machine
-If you need to sign releases on a different Mac, copy the private key file securely to that machine, then import it:
-
-```bash
-# Import the private key file back into the macOS Keychain
-/Users/rahulchaturvedi/Library/Developer/Xcode/DerivedData/SangeetAI-degymxqjqeetrkewkhkyppveapmg/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys -f ~/.sangeet-keys/sangeet-private-key.key
-
-# Securely erase the temporary file from disk immediately after import
-rm -f ~/.sangeet-keys/sangeet-private-key.key
-```
+> [!WARNING]
+> Do NOT use your master Apple ID password for `APPLE_APP_PASSWORD`. You must generate a dedicated, 16-character app-specific password specifically for Sangeet AI releases on your Apple Developer account portal.
 
 ---
 
-## 3. Signing an Update Bundle
+## 2. Security Entitlements & Hardened Runtime
 
-To distribute a new version of Sangeet AI:
+Production macOS applications require **Hardened Runtime** enabled and the **App Sandbox** active. However, loading dynamic libraries from a frozen Python and PyTorch package introduces several unique restrictions that we handle in [SangeetAI.entitlements](file:///Users/rahulchaturvedi/AI_Audio_Restoration/apps/macos/Sources/SangeetAI/SangeetAI.entitlements):
 
-1. **Build and Package**: Compile the release version of Sangeet AI and package it as a `.zip` file or `.dmg` (e.g., `SangeetAI-1.1.0.zip`).
-2. **Sign the Archive**: Run the Sparkle `sign_update` tool to compute the Ed25519 signature for the packaged update.
+### 2.1 Privileges Allowed
+* `com.apple.security.app-sandbox` = `true` — Mandated for secure, modern macOS app distribution.
+* `com.apple.security.network.client` = `true` — Allows the app/daemon to communicate outward to download required ML weights on first use.
+* `com.apple.security.files.user-selected.read-write` = `true` — Allows users to drop audio files to import and select output locations to export restored files.
 
+### 2.2 Hardened Runtime Exemptions
+* `com.apple.security.cs.allow-jit` = `true` — Allows dynamic Python/PyTorch compilation.
+* `com.apple.security.cs.allow-unsigned-executable-memory` = `true` — Essential for Python's `ctypes` allocations.
+* `com.apple.security.cs.disable-library-validation` = `true` — Allows the process to load third-party dynamic modules (`.so` and `.dylib` files compiled in PyInstaller) that do not share the host's Team ID signature.
+
+---
+
+## 3. Strict Inside-Out signing order
+
+Gatekeeper enforces that nested contents must be signed *before* outer contents. If you modify or sign an inner binary after signing its parent bundle, the parent's directory hashes break, causing the app to fail Gatekeeper validation.
+
+Our [codesign.sh](file:///Users/rahulchaturvedi/AI_Audio_Restoration/scripts/codesign.sh) script enforces this order:
+1. **Nested Libraries:** Signs all `.so` and `.dylib` files inside the PyInstaller `_internal` dependency directory.
+2. **Helper Executables:** Signs helper binaries (e.g. `torch_shm_manager`, `protoc`).
+3. **Daemon Binary:** Signs the main `sangeet-inference` executable inside `Contents/Resources/sangeet-inference`.
+4. **App Bundle:** Signs the outer `SangeetAI.app` bundle while attaching the `SangeetAI.entitlements` configuration plist.
+
+---
+
+## 4. How to Orchestrate a Release
+
+A single `make` target triggers the entire release pipeline (building, signing inside-out, notarizing the app zip, stapling, DMG creation, DMG signing, DMG notarizing, and DMG stapling):
+
+### 4.1 Local Development Dry-Run (Ad-hoc)
+To verify the build, packaging, and DMG creations without using a paid Apple Developer certificate, run:
 ```bash
-# Execute the Sparkle signing tool on your packaged ZIP
-/Users/rahulchaturvedi/Library/Developer/Xcode/DerivedData/SangeetAI-degymxqjqeetrkewkhkyppveapmg/SourcePackages/artifacts/sparkle/Sparkle/bin/sign_update /path/to/SangeetAI-1.1.0.zip
+make release VERSION=0.10.0-beta1
+```
+This defaults `SIGNING_IDENTITY` to `-` (ad-hoc), skips credential-based notarizations, and outputs a signed, valid local DMG at `dist/SangeetAI-0.10.0-beta1.dmg`.
+
+### 4.2 Production Notarized Release
+Configure your environment variables and invoke:
+```bash
+export APPLE_ID="developer@company.com"
+export APPLE_TEAM_ID="ABC123XYZ9"
+export APPLE_APP_PASSWORD="abcd-efgh-ijkl-mnop"
+
+make release VERSION=0.10.0-beta1 SIGNING_IDENTITY="Developer ID Application: Your Company (ABC123XYZ9)"
+```
+This outputs a fully signed, notarized, and double-stapled DMG at `dist/SangeetAI-0.10.0-beta1.dmg` ready for immediate public distribution!
+
+---
+
+## 5. Verification Command Reference
+
+Validate your built artifacts using Apple's standard command line utilities:
+
+### 5.1 Entitlements & Signature Audit
+Verify that the outer app bundle carries the correct codesign identifiers and entitlements:
+```bash
+codesign -d --entitlements - build/DerivedData/Build/Products/Release/SangeetAI.app
 ```
 
-This command will print a signature string resembling:
-```text
-sparkle:edSignature="base64_encoded_signature_hash_here" length="file_size_in_bytes"
+### 5.2 Deep Bundle Verification
+Audit the entire app package structure to ensure no nesting or signature violations exist:
+```bash
+codesign --verify --verbose --deep build/DerivedData/Build/Products/Release/SangeetAI.app
 ```
 
-Copy this output directly. You will paste this signature, signature length, and the file size into the corresponding `<enclosure>` tag in `appcast.xml` when deploying.
+### 5.3 Gatekeeper Assessment
+Confirm if Gatekeeper approves the application bundle for launch:
+```bash
+spctl --assess --type execute --verbose build/DerivedData/Build/Products/Release/SangeetAI.app
+```
+
+Confirm if the DMG itself is recognized and approved by Gatekeeper:
+```bash
+spctl --assess --type open --context context:primary-signature --verbose dist/SangeetAI-0.10.0-beta1.dmg
+```
+
+### 5.4 Notarization Logs
+In the rare event of a notarization rejection, query Apple's validation log:
+```bash
+xcrun notarytool log <submission-uuid> --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" --password "$APPLE_APP_PASSWORD"
+```

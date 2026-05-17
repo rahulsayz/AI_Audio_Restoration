@@ -54,3 +54,13 @@ clean:
 	@echo "Cleaning up build artifacts..."
 	rm -rf services/inference/build services/inference/dist services/inference/.mypy_cache services/inference/.pytest_cache
 	rm -rf packages/audio-engine/.build
+	rm -rf build/DerivedData dist/
+
+release:
+	@if [ -z "$(VERSION)" ]; then \
+		echo "Error: VERSION parameter is required. Usage: make release VERSION=0.10.0-beta1 [SIGNING_IDENTITY=...]"; \
+		exit 1; \
+	fi
+	@SIGNING_IDENT="$${SIGNING_IDENTITY:--}"; \
+	echo "Orchestrating release for Sangeet AI version $(VERSION) with identity '$${SIGNING_IDENT}'..."; \
+	./scripts/release.sh "$${SIGNING_IDENT}" "$(VERSION)"

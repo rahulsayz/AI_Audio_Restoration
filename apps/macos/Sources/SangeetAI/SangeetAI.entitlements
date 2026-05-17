@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- App Sandbox Enablement -->
+	<key>com.apple.security.app-sandbox</key>
+	<true/>
+
+	<!-- Outgoing Network Connection (Required to download ML model weights on first start) -->
+	<key>com.apple.security.network.client</key>
+	<true/>
+
+	<!-- User Selected Files Access (Required to read/write imported and restored audio files) -->
+	<key>com.apple.security.files.user-selected.read-write</key>
+	<true/>
+
+	<!-- Hardened Runtime Exceptions (Required for dynamic library loading of Python and PyTorch .dylib/.so dependencies) -->
+	<key>com.apple.security.cs.allow-jit</key>
+	<true/>
+	<key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+	<true/>
+	<key>com.apple.security.cs.disable-library-validation</key>
+	<true/>
+</dict>
+</plist>

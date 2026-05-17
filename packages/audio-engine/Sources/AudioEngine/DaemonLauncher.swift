@@ -26,20 +26,38 @@ public final class DaemonLauncher {
         } else if let envPath = ProcessInfo.processInfo.environment["SANGEET_DAEMON_PATH"] {
             path = envPath
         } else {
-            // Bundled resource lookup via Bundle.module
-            // Note: SPM compiles Bundle.module synthesis if resources are declared or in tests.
-            // Let's resolve the path with a fallback for SPM testing
+            let fm = FileManager.default
+            var resolvedPath: String? = nil
+            
+            // 1. Search Bundle.main (primary production distribution path)
+            if let mainURL = Bundle.main.url(forResource: "sangeet-inference", withExtension: nil) {
+                let nestedExecPath = mainURL.appendingPathComponent("sangeet-inference").path
+                if fm.fileExists(atPath: nestedExecPath) {
+                    resolvedPath = nestedExecPath
+                } else if fm.fileExists(atPath: mainURL.path) {
+                    resolvedPath = mainURL.path
+                }
+            }
+            
+            // 2. Search Bundle.module (fallback for SPM package tests)
             #if SWIFT_PACKAGE
-            if let bundleURL = Bundle.module.url(forResource: "sangeet-inference", withExtension: nil) {
-                path = bundleURL.path
+            if resolvedPath == nil, let moduleURL = Bundle.module.url(forResource: "sangeet-inference", withExtension: nil) {
+                let nestedExecPath = moduleURL.appendingPathComponent("sangeet-inference").path
+                if fm.fileExists(atPath: nestedExecPath) {
+                    resolvedPath = nestedExecPath
+                } else if fm.fileExists(atPath: moduleURL.path) {
+                    resolvedPath = moduleURL.path
+                }
+            }
+            #endif
+            
+            if let foundPath = resolvedPath {
+                path = foundPath
             } else {
+                // 3. Fallback to hardcoded script path for local source code iteration
                 path = "/Users/rahulchaturvedi/AI_Audio_Restoration/services/inference/sangeet_inference/daemon.py"
                 isScript = true
             }
-            #else
-            path = "/Users/rahulchaturvedi/AI_Audio_Restoration/services/inference/sangeet_inference/daemon.py"
-            isScript = true
-            #endif
         }
         
         if path.hasSuffix(".py") {
