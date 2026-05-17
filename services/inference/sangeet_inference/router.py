@@ -110,7 +110,40 @@ def route_features(features: AudioFeatures) -> RestorationRecipe:
         )
         recipe.stages.append(declick_invocation)
 
-    # 4. Fallback to passthrough if no active stages are selected
+    # 4. Determine bandwidth_extension strength based on hf_rolloff_hz
+    bwe_strength = 0.0
+    if features is not None and features.HasField("hf_rolloff_hz"):
+        hf_rolloff = features.hf_rolloff_hz
+        if hf_rolloff < 8000.0:
+            if hf_rolloff < 4000.0:
+                bwe_strength = 0.5
+            elif 4000.0 <= hf_rolloff < 6000.0:
+                bwe_strength = 0.4
+            else:  # 6000.0 <= hf_rolloff < 8000.0
+                bwe_strength = 0.25
+        
+        # Apply is_classical cap: cap strength at 0.3 to protect classical instruments
+        is_classical = getattr(features, "is_classical", False)
+        spectral_centroid = getattr(features, "spectral_centroid_hz", None)
+        crest_factor = getattr(features, "crest_factor", None)
+        if not is_classical and spectral_centroid is not None and crest_factor is not None:
+            if spectral_centroid < 1500.0 and crest_factor > 15.0:
+                is_classical = True
+        
+        if is_classical:
+            bwe_strength = min(bwe_strength, 0.3)
+
+    if bwe_strength > 0.0:
+        bwe_params = StageParams()
+        bwe_params.params["strength"] = bwe_strength
+        bwe_params.params["cutoff_frequency_hz"] = features.hf_rolloff_hz
+
+        bwe_invocation = StageInvocation(
+            stage_name="bandwidth_extension", strength=bwe_strength, params=bwe_params
+        )
+        recipe.stages.append(bwe_invocation)
+
+    # 5. Fallback to passthrough if no active stages are selected
     if len(recipe.stages) == 0:
         invocation = StageInvocation(
             stage_name="passthrough", strength=1.0, params=None

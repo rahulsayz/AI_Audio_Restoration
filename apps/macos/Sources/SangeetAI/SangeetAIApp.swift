@@ -14,5 +14,9 @@ struct SangeetAIApp: App {
         }
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentSize)
+        
+        Settings {
+            SettingsView()
+        }
     }
 }

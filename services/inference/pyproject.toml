@@ -15,6 +15,7 @@ dependencies = [
     "torchaudio==2.3.0",
     "deepfilternet>=0.5.0,<0.6.0",
     "pyloudnorm>=0.1.1",
+    "ssr_eval>=0.1.0",
 ]
 
 [project.optional-dependencies]

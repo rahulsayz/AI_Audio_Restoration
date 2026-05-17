@@ -111,7 +111,7 @@ public final class DaemonLauncher {
     }
     
     /// Polled socket check using raw POSIX sockets for high-precision validation.
-    private func isSocketConnectable(path: String) -> Bool {
+    public func isSocketConnectable(path: String) -> Bool {
         guard FileManager.default.fileExists(atPath: path) else { return false }
         
         let fd = socket(AF_UNIX, SOCK_STREAM, 0)
@@ -125,7 +125,7 @@ public final class DaemonLauncher {
         addr.sun_family = sa_family_t(AF_UNIX)
         
         let pathMax = MemoryLayout.size(ofValue: addr.sun_path)
-        _ = path.withCString { cstr in
+        path.withCString { cstr in
             withUnsafeMutablePointer(to: &addr.sun_path) { sunPathPtr in
                 let rawPtr = UnsafeMutableRawPointer(sunPathPtr)
                 let charPtr = rawPtr.assumingMemoryBound(to: CChar.self)

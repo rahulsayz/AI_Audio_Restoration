@@ -17,13 +17,17 @@ public final class AudioEncoder {
         
         switch ext {
         case "wav":
-            // 32-bit Floating Point PCM WAV
+            // Dynamic Bit Depth from UserDefaults (default: 24-bit PCM)
+            let bitDepthSetting = UserDefaults.standard.integer(forKey: "defaultWavBitDepth")
+            let actualBitDepth = bitDepthSetting > 0 ? bitDepthSetting : 24
+            let isFloat = actualBitDepth == 32
+            
             settings = [
                 AVFormatIDKey: kAudioFormatLinearPCM,
                 AVSampleRateKey: format.sampleRate,
                 AVNumberOfChannelsKey: format.channelCount,
-                AVLinearPCMBitDepthKey: 32,
-                AVLinearPCMIsFloatKey: true,
+                AVLinearPCMBitDepthKey: actualBitDepth,
+                AVLinearPCMIsFloatKey: isFloat,
                 AVLinearPCMIsBigEndianKey: false,
                 AVLinearPCMIsNonInterleaved: false
             ]
@@ -35,16 +39,19 @@ public final class AudioEncoder {
                 AVNumberOfChannelsKey: format.channelCount
             ]
         case "m4a", "aac":
-            // 256kbps High-Quality AAC
+            // Dynamic Bitrate from UserDefaults (default: 256 kbps)
+            let bitrateSetting = UserDefaults.standard.integer(forKey: "defaultAudioBitrate")
+            let actualBitrate = (bitrateSetting > 0 ? bitrateSetting : 256) * 1000
+            
             settings = [
                 AVFormatIDKey: kAudioFormatMPEG4AAC,
                 AVSampleRateKey: format.sampleRate,
                 AVNumberOfChannelsKey: format.channelCount,
-                AVEncoderBitRateKey: 256_000
+                AVEncoderBitRateKey: actualBitrate
             ]
         case "mp3":
             throw AudioEngineError.encodeFailed(
-                "MP3 encoding is not natively supported by macOS AVFoundation. Please select WAV, FLAC, or M4A (AAC) instead."
+                "MP3 encoding is not natively supported by macOS AVFoundation. Please select WAV, FLAC, or M4A (AAC) in Sangeet Settings instead."
             )
         default:
             throw AudioEngineError.encodeFailed("Unsupported audio format extension: .\(ext).")

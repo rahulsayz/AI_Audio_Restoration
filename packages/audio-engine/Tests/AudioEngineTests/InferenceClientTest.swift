@@ -31,6 +31,6 @@ final class InferenceClientTest: XCTestCase {
         
         // 2. Test ListModels
         let modelList = try await client.listModels()
-        XCTAssertTrue(modelList.models.isEmpty)
+        XCTAssertFalse(modelList.models.isEmpty)
     }
 }

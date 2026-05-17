@@ -305,7 +305,7 @@ def test_router_dehum_triggered_by_default_when_features_none() -> None:
 def test_router_signal_chain_ordering() -> None:
     """
     Asserts that the signal chain stages are ordered correctly when all are active:
-    Stage 3 (dehum) -> Stage 4 (deep_filter_net) -> Stage 5 (declick).
+    Stage 3 (dehum) -> Stage 4 (deep_filter_net) -> Stage 5 (declick) -> Stage 6 (bandwidth_extension).
     """
     features = AudioFeatures(
         sample_rate=48000,
@@ -314,10 +314,124 @@ def test_router_signal_chain_ordering() -> None:
         snr_estimate_db=10.0,  # Triggers deep_filter_net
         click_rate_per_s=8.0,  # Triggers declick
         hum_50hz_present=True,  # Triggers dehum
+        hf_rolloff_hz=3500.0,  # Triggers bandwidth_extension
     )
     recipe = route_features(features)
-    assert len(recipe.stages) == 3
+    assert len(recipe.stages) == 4
     assert recipe.stages[0].stage_name == "dehum"
     assert recipe.stages[1].stage_name == "deep_filter_net"
     assert recipe.stages[2].stage_name == "declick"
+    assert recipe.stages[3].stage_name == "bandwidth_extension"
+
+
+def test_router_triggers_bwe_on_severe_rolloff() -> None:
+    """
+    Asserts that severe high-frequency rolloff (< 4000 Hz) triggers BWE at strength 0.5.
+    """
+    features = AudioFeatures(
+        sample_rate=48000,
+        channels=2,
+        duration_s=30.0,
+        snr_estimate_db=36.0,  # Clean to bypass denoiser
+        click_rate_per_s=0.0,  # Bypass declick
+        hf_rolloff_hz=3500.0,
+    )
+    recipe = route_features(features)
+    assert len(recipe.stages) == 1
+    assert recipe.stages[0].stage_name == "bandwidth_extension"
+    assert recipe.stages[0].strength == pytest.approx(0.5)
+    assert recipe.stages[0].params.params["cutoff_frequency_hz"] == 3500.0
+
+
+def test_router_triggers_bwe_on_medium_rolloff() -> None:
+    """
+    Asserts that medium high-frequency rolloff (4000 to 6000 Hz) triggers BWE at strength 0.4.
+    """
+    features = AudioFeatures(
+        sample_rate=48000,
+        channels=2,
+        duration_s=30.0,
+        snr_estimate_db=36.0,
+        click_rate_per_s=0.0,
+        hf_rolloff_hz=5000.0,
+    )
+    recipe = route_features(features)
+    assert len(recipe.stages) == 1
+    assert recipe.stages[0].stage_name == "bandwidth_extension"
+    assert recipe.stages[0].strength == pytest.approx(0.4)
+
+
+def test_router_triggers_bwe_on_light_rolloff() -> None:
+    """
+    Asserts that light high-frequency rolloff (6000 to 8000 Hz) triggers BWE at strength 0.25.
+    """
+    features = AudioFeatures(
+        sample_rate=48000,
+        channels=2,
+        duration_s=30.0,
+        snr_estimate_db=36.0,
+        click_rate_per_s=0.0,
+        hf_rolloff_hz=7000.0,
+    )
+    recipe = route_features(features)
+    assert len(recipe.stages) == 1
+    assert recipe.stages[0].stage_name == "bandwidth_extension"
+    assert recipe.stages[0].strength == pytest.approx(0.25)
+
+
+def test_router_bwe_bypassed_for_wideband() -> None:
+    """
+    Asserts that high-frequency rolloff >= 8000 Hz does not trigger BWE.
+    """
+    features = AudioFeatures(
+        sample_rate=48000,
+        channels=2,
+        duration_s=30.0,
+        snr_estimate_db=36.0,
+        click_rate_per_s=0.0,
+        hf_rolloff_hz=9000.0,
+    )
+    recipe = route_features(features)
+    assert len(recipe.stages) == 1
+    assert recipe.stages[0].stage_name == "passthrough"
+
+
+def test_router_bwe_capped_for_classical() -> None:
+    """
+    CRITICAL CULTURAL FIDELITY TEST.
+    Asserts that classical recordings cap the bandwidth extension strength at 0.3
+    even if the rolloff is severe (< 4000 Hz, which normally triggers 0.5).
+    """
+    class MockAudioFeatures:
+        def __init__(self, snr: float, centroid: float, crest: float, click_rate: float, rolloff: float):
+            self.snr_estimate_db = snr
+            self.spectral_centroid_hz = centroid
+            self.crest_factor = crest
+            self.click_rate_per_s = click_rate
+            self.hf_rolloff_hz = rolloff
+
+        def HasField(self, name: str) -> bool:  # noqa: N802
+            if name == "snr_estimate_db":
+                return self.snr_estimate_db is not None
+            if name == "spectral_centroid_hz":
+                return self.spectral_centroid_hz is not None
+            if name == "click_rate_per_s":
+                return self.click_rate_per_s is not None
+            if name == "hf_rolloff_hz":
+                return self.hf_rolloff_hz is not None
+            return False
+
+    classical_features = MockAudioFeatures(
+        snr=36.0,
+        centroid=1200.0,
+        crest=18.0,
+        click_rate=0.0,
+        rolloff=3500.0,
+    )
+    recipe = route_features(classical_features)  # type: ignore[arg-type]
+
+    assert len(recipe.stages) == 1
+    assert recipe.stages[0].stage_name == "bandwidth_extension"
+    assert recipe.stages[0].strength == pytest.approx(0.3)
+
 

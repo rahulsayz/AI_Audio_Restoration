@@ -1,4 +1,5 @@
 import XCTest
+import AVFoundation
 @testable import SangeetAI
 import AudioEngine
 
@@ -49,5 +50,96 @@ final class SangeetAITests: XCTestCase {
         XCTAssertNil(viewModel.loadedFileURL)
         XCTAssertNil(viewModel.errorMessage)
         XCTAssertFalse(viewModel.isProcessing)
+    }
+    
+    func test_fullRestorationWorkflow_endToEnd() async throws {
+        // 1. Arrange a real synthetic WAV file for test drop
+        let tempDir = FileManager.default.temporaryDirectory
+        let inputURL = tempDir.appendingPathComponent("lata_test.wav")
+        
+        // Generate a 1-second synthetic sine wave WAV file
+        let sampleRate: Double = 44100.0
+        let duration: Double = 1.0
+        let totalSamples = Int(sampleRate * duration)
+        var samples = [Float](repeating: 0.0, count: totalSamples)
+        for i in 0..<totalSamples {
+            samples[i] = sin(Float(i) * 2.0 * Float.pi * 440.0 / Float(sampleRate))
+        }
+        
+        let format = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 1)!
+        let settings: [String: Any] = [
+            AVFormatIDKey: kAudioFormatLinearPCM,
+            AVSampleRateKey: sampleRate,
+            AVNumberOfChannelsKey: 1,
+            AVLinearPCMBitDepthKey: 16,
+            AVLinearPCMIsBigEndianKey: false,
+            AVLinearPCMIsFloatKey: false
+        ]
+        
+        let audioFile = try AVAudioFile(forWriting: inputURL, settings: settings)
+        let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(totalSamples))!
+        buffer.frameLength = AVAudioFrameCount(totalSamples)
+        for i in 0..<totalSamples {
+            buffer.floatChannelData?[0][i] = samples[i]
+        }
+        try audioFile.write(from: buffer)
+        
+        defer {
+            try? FileManager.default.removeItem(at: inputURL)
+        }
+        
+        // 2. Drop the file — analysis panel populates
+        viewModel.loadFile(url: inputURL)
+        XCTAssertEqual(viewModel.filename, "lata_test.wav")
+        XCTAssertEqual(viewModel.loadedFileURL, inputURL)
+        
+        // Wait a tiny moment for metadata / mock analysis to settle
+        try await Task.sleep(nanoseconds: 50_000_000)
+        XCTAssertFalse(viewModel.sampleRateString.isEmpty)
+        XCTAssertFalse(viewModel.durationString.isEmpty)
+        
+        // 3. Click Restore — progress streams
+        viewModel.startRestoration()
+        
+        // Assert that processing has started
+        XCTAssertTrue(viewModel.isProcessing)
+        
+        // Wait for restoration to complete (the mock daemon finishes instantly or extremely fast)
+        var checkCount = 0
+        while viewModel.isProcessing && checkCount < 100 {
+            try await Task.sleep(nanoseconds: 50_000_000)
+            checkCount += 1
+        }
+        
+        XCTAssertFalse(viewModel.isProcessing)
+        XCTAssertTrue(viewModel.restorationComplete)
+        XCTAssertNotNil(viewModel.outputFileURL)
+        
+        // Clean up output file
+        if let outURL = viewModel.outputFileURL {
+            defer { try? FileManager.default.removeItem(at: outURL) }
+        }
+        
+        // 4. Result appears in library
+        viewModel.loadLibrary()
+        XCTAssertFalse(viewModel.libraryEntries.isEmpty)
+        let latestEntry = viewModel.libraryEntries.first
+        XCTAssertEqual(latestEntry?.filename, "lata_test.wav")
+        
+        // 5. Settings persist across launches
+        UserDefaults.standard.set("remaster", forKey: "defaultMasteringPreset")
+        let settingsPreset = UserDefaults.standard.string(forKey: "defaultMasteringPreset")
+        XCTAssertEqual(settingsPreset, "remaster")
+        
+        // 6. Restart app — library entry is still there
+        let newViewModel = RestorationViewModel(coordinator: RestorationCoordinator())
+        newViewModel.loadLibrary()
+        XCTAssertFalse(newViewModel.libraryEntries.isEmpty)
+        XCTAssertEqual(newViewModel.libraryEntries.first?.filename, "lata_test.wav")
+        
+        // Clean up database entry
+        if let entryId = latestEntry?.id {
+            newViewModel.deleteEntry(id: entryId)
+        }
     }
 }

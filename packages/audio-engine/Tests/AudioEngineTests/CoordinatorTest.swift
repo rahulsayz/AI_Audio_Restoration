@@ -91,7 +91,7 @@ final class CoordinatorTest: XCTestCase {
         XCTAssertFalse(progressEvents.isEmpty, "Should have received progress updates from the daemon.")
         XCTAssertTrue(FileManager.default.fileExists(atPath: outputURL.path))
         
-        // 5. Decode output WAV and assert signal match within -90 dB (1e-4 accuracy)
+        // 5. Decode output WAV and assert signal correctness and loudness target compliance
         let decoder = AudioDecoder()
         let destBuffer = try decoder.decode(fileURL: outputURL)
         
@@ -99,12 +99,13 @@ final class CoordinatorTest: XCTestCase {
         XCTAssertEqual(destBuffer.format.channelCount, channels)
         XCTAssertEqual(destBuffer.frameLength, frameCount)
         
-        if let srcData = srcBuffer.floatChannelData, let destData = destBuffer.floatChannelData {
-            for ch in 0..<Int(channels) {
-                for frame in 0..<Int(frameCount) {
-                    XCTAssertEqual(destData[ch][frame], srcData[ch][frame], accuracy: 1e-4)
-                }
-            }
+        XCTAssertNotNil(coordinator.lastMeasuredLUFS)
+        XCTAssertNotNil(coordinator.lastMeasuredTruePeak)
+        
+        if let lufs = coordinator.lastMeasuredLUFS, let tp = coordinator.lastMeasuredTruePeak {
+            // A 1-second sine wave is short, so allow standard tolerance of +/- 1.0 LU on target -14 LUFS
+            XCTAssertEqual(lufs, -14.0, accuracy: 1.0)
+            XCTAssertLessThanOrEqual(tp, -1.0)
         }
         
         // 6. Graceful shutdown

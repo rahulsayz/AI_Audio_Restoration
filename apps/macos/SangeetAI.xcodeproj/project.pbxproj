@@ -15,6 +15,7 @@
 		11A0009B2C4B7D26008E1A0F /* ComparePlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A0009A2C4B7D26008E1A0F /* ComparePlayerView.swift */; };
 		11A0009D2C4B7D26008E1A0F /* StackedWaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A0009C2C4B7D26008E1A0F /* StackedWaveformView.swift */; };
 		11A0009F2C4B7D26008E1A0F /* SpectrumVisualizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A0009E2C4B7D26008E1A0F /* SpectrumVisualizerView.swift */; };
+		11A000A22C4B7D26008E1A0F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A000A12C4B7D26008E1A0F /* SettingsView.swift */; };
 		11A000152C4B7D26008E1A0F /* SangeetAITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A000062C4B7D26008E1A0F /* SangeetAITests.swift */; };
 		11A000162C4B7D26008E1A0F /* AudioEngine in Frameworks */ = {isa = PBXBuildFile; productRef = 11A0000A2C4B7D26008E1A0F /* AudioEngine */; };
 		11A000172C4B7D26008E1A0F /* AudioEngine in Frameworks */ = {isa = PBXBuildFile; productRef = 11A0000A2C4B7D26008E1A0F /* AudioEngine */; };
@@ -39,6 +40,7 @@
 		11A0009A2C4B7D26008E1A0F /* ComparePlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComparePlayerView.swift; sourceTree = "<group>"; };
 		11A0009C2C4B7D26008E1A0F /* StackedWaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StackedWaveformView.swift; sourceTree = "<group>"; };
 		11A0009E2C4B7D26008E1A0F /* SpectrumVisualizerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpectrumVisualizerView.swift; sourceTree = "<group>"; };
+		11A000A12C4B7D26008E1A0F /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		11A000062C4B7D26008E1A0F /* SangeetAITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SangeetAITests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -82,6 +84,7 @@
 				11A0009A2C4B7D26008E1A0F /* ComparePlayerView.swift */,
 				11A0009C2C4B7D26008E1A0F /* StackedWaveformView.swift */,
 				11A0009E2C4B7D26008E1A0F /* SpectrumVisualizerView.swift */,
+				11A000A12C4B7D26008E1A0F /* SettingsView.swift */,
 			);
 			path = Sources/SangeetAI;
 			sourceTree = "<group>";
@@ -193,6 +196,7 @@
 				11A0009B2C4B7D26008E1A0F /* ComparePlayerView.swift in Sources */,
 				11A0009D2C4B7D26008E1A0F /* StackedWaveformView.swift in Sources */,
 				11A0009F2C4B7D26008E1A0F /* SpectrumVisualizerView.swift in Sources */,
+				11A000A22C4B7D26008E1A0F /* SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

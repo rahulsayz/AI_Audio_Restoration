@@ -196,15 +196,19 @@ func runEndToEndRestoration(socketPath: String) async throws {
         throw NSError(domain: "SmokeTest", code: 15, userInfo: [NSLocalizedDescriptionKey: "Restored frame length mismatch"])
     }
     
-    if let srcData = srcBuffer.floatChannelData, let destData = destBuffer.floatChannelData {
-        for channel in 0..<Int(channels) {
-            for frame in 0..<Int(frameCount) {
-                let diff = abs(destData[channel][frame] - srcData[channel][frame])
-                if diff > 1e-4 {
-                    throw NSError(domain: "SmokeTest", code: 16, userInfo: [NSLocalizedDescriptionKey: "Restored signal mismatch at ch \(channel) frame \(frame)"])
-                }
-            }
-        }
+    guard let lufs = coordinator.lastMeasuredLUFS, let tp = coordinator.lastMeasuredTruePeak else {
+        throw NSError(domain: "SmokeTest", code: 16, userInfo: [NSLocalizedDescriptionKey: "Loudness/TruePeak metrics were not measured by the coordinator."])
+    }
+    
+    print("  Restored Loudness: \(lufs) LUFS (Target: -14.0 LUFS)")
+    print("  Restored True Peak: \(tp) dBTP (Target Ceiling: -1.0 dBTP)")
+    
+    // A 1-second sine wave is short, allow standard tolerance of +/- 1.0 LU
+    guard abs(lufs - (-14.0)) <= 1.0 else {
+        throw NSError(domain: "SmokeTest", code: 17, userInfo: [NSLocalizedDescriptionKey: "Loudness target mismatch: \(lufs) LUFS"])
+    }
+    guard tp <= -1.0 else {
+        throw NSError(domain: "SmokeTest", code: 18, userInfo: [NSLocalizedDescriptionKey: "True peak ceiling breached: \(tp) dBTP"])
     }
     
     try await coordinator.shutdown()

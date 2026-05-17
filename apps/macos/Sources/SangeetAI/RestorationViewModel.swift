@@ -50,6 +50,8 @@ public final class RestorationViewModel: ObservableObject {
     
     private var player: SynchronizedAudioPlayer? = nil
     private var database: LibraryDatabase? = nil
+    private var activeDatabaseURL: URL? = nil
+    private var cancellables = Set<AnyCancellable>()
     
     // Coordinator & Task
     private let coordinator: RestorationCoordinator
@@ -57,17 +59,61 @@ public final class RestorationViewModel: ObservableObject {
     
     public init(coordinator: RestorationCoordinator = RestorationCoordinator()) {
         self.coordinator = coordinator
+        
+        // Load default preset from settings
+        let defaultPresetString = UserDefaults.standard.string(forKey: "defaultMasteringPreset") ?? "streaming"
+        self.selectedPreset = defaultPresetString == "remaster" ? .remaster : .streaming
+        
         setupDatabase()
         loadLibrary()
+        
+        // Listen to settings changes to handle live reloading of database or preset defaults
+        NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                self.handleSettingsChange()
+            }
+            .store(in: &cancellables)
     }
     
     private func setupDatabase() {
         do {
-            let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-            let storeURL = appSupport.appendingPathComponent("SangeetAI").appendingPathComponent("library.sqlite")
+            let storeURL: URL
+            if let customPath = UserDefaults.standard.string(forKey: "libraryLocation"), !customPath.isEmpty {
+                let resolvedPath = (customPath as NSString).expandingTildeInPath
+                storeURL = URL(fileURLWithPath: resolvedPath)
+            } else {
+                let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+                storeURL = appSupport.appendingPathComponent("SangeetAI").appendingPathComponent("library.sqlite")
+            }
+            
+            // Avoid re-initializing if it is already active on the same path
+            if self.database != nil && self.activeDatabaseURL == storeURL {
+                return
+            }
+            
+            // Ensure parent directory exists
+            try FileManager.default.createDirectory(at: storeURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+            
             self.database = try LibraryDatabase(storeURL: storeURL)
+            self.activeDatabaseURL = storeURL
+            print("[RestorationViewModel] Library Database initialized at: \(storeURL.path)")
         } catch {
             print("[RestorationViewModel] Database setup failed: \(error.localizedDescription)")
+        }
+    }
+    
+    private func handleSettingsChange() {
+        // 1. Re-initialize database connection if the path preference changed
+        setupDatabase()
+        loadLibrary()
+        
+        // 2. Update mastering preset preference if default preset changed
+        let defaultPresetString = UserDefaults.standard.string(forKey: "defaultMasteringPreset") ?? "streaming"
+        let targetPreset: MasteringChain.Preset = defaultPresetString == "remaster" ? .remaster : .streaming
+        if self.selectedPreset != targetPreset {
+            self.selectedPreset = targetPreset
         }
     }
     
@@ -197,8 +243,9 @@ public final class RestorationViewModel: ObservableObject {
         self.measuredLUFS = nil
         self.measuredTruePeak = nil
         
-        // Determine output file path (e.g. sibling with -restored suffix)
-        let fileExtension = inputURL.pathExtension
+        // Determine output file path (e.g. sibling with -restored suffix, using default format setting if available)
+        let defaultFormat = UserDefaults.standard.string(forKey: "defaultOutputFormat")?.lowercased() ?? inputURL.pathExtension.lowercased()
+        let fileExtension = defaultFormat.isEmpty ? inputURL.pathExtension : defaultFormat
         let baseName = inputURL.deletingPathExtension().lastPathComponent
         let outputName = "\(baseName)-restored.\(fileExtension)"
         let outputURL = inputURL.deletingLastPathComponent().appendingPathComponent(outputName)

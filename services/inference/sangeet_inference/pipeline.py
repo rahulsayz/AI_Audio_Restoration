@@ -18,6 +18,7 @@ from sangeet_inference.stages.declick import DeclickStage
 from sangeet_inference.stages.deep_filter_net import DeepFilterNetStage
 from sangeet_inference.stages.dehum import DehumStage
 from sangeet_inference.stages.passthrough import PassthroughStage
+from sangeet_inference.stages.bandwidth_extension import BandwidthExtensionStage
 
 logger = structlog.get_logger()
 
@@ -37,7 +38,8 @@ class RestorationPipeline:
             "passthrough": PassthroughStage(),
             "deep_filter_net": DeepFilterNetStage(),
             "declick": DeclickStage(),
-            "dehum": DehumStage()
+            "dehum": DehumStage(),
+            "bandwidth_extension": BandwidthExtensionStage(),
         }
         logger.info("RestorationPipeline initialized", loaded_stages=list(self.stages.keys()))
 

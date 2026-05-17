@@ -285,6 +285,20 @@ def main() -> None:
     configure_logging(verbose=False)
     logger.info("Initializing Sangeet AI Inference Daemon", python_version=sys.version)
 
+    # Start parent process monitor thread to prevent orphaned processes when Xcode/system stops the app
+    def monitor_parent() -> None:
+        initial_ppid = os.getppid()
+        if initial_ppid <= 1:
+            return
+        while True:
+            time.sleep(2)
+            if os.getppid() != initial_ppid:
+                logger.info("Parent process has terminated. Daemon exiting gracefully.")
+                os._exit(0)
+
+    monitor_thread = threading.Thread(target=monitor_parent, daemon=True)
+    monitor_thread.start()
+
     # 1. Resolve socket path and ensure directories are present
     socket_path = os.path.expanduser("~/Library/Application Support/SangeetAI/inference.sock")
     if "--socket" in sys.argv:
