@@ -304,8 +304,9 @@ def test_router_dehum_triggered_by_default_when_features_none() -> None:
 
 def test_router_signal_chain_ordering() -> None:
     """
-    Asserts that the signal chain stages are ordered correctly when all are active:
-    Stage 3 (dehum) -> Stage 4 (deep_filter_net) -> Stage 5 (declick) -> Stage 6 (bandwidth_extension).
+    Asserts that the active signal chain stages are ordered correctly:
+    Stage 3 (dehum) -> Stage 4 (deep_filter_net) -> Stage 5 (declick).
+    BWE is unconditionally disabled in V1, so it must not be present in the active stages list.
     """
     features = AudioFeatures(
         sample_rate=48000,
@@ -314,19 +315,21 @@ def test_router_signal_chain_ordering() -> None:
         snr_estimate_db=10.0,  # Triggers deep_filter_net
         click_rate_per_s=8.0,  # Triggers declick
         hum_50hz_present=True,  # Triggers dehum
-        hf_rolloff_hz=3500.0,  # Triggers bandwidth_extension
+        hf_rolloff_hz=3500.0,  # BWE input but bypassed in V1
     )
     recipe = route_features(features)
-    assert len(recipe.stages) == 4
+    assert len(recipe.stages) == 3
     assert recipe.stages[0].stage_name == "dehum"
     assert recipe.stages[1].stage_name == "deep_filter_net"
     assert recipe.stages[2].stage_name == "declick"
-    assert recipe.stages[3].stage_name == "bandwidth_extension"
+    # Explicitly check BWE is not present
+    for stage in recipe.stages:
+        assert stage.stage_name != "bandwidth_extension"
 
 
 def test_router_triggers_bwe_on_severe_rolloff() -> None:
     """
-    Asserts that severe high-frequency rolloff (< 4000 Hz) triggers BWE at strength 0.5.
+    Asserts that severe high-frequency rolloff (< 4000 Hz) does NOT trigger BWE in V1.
     """
     features = AudioFeatures(
         sample_rate=48000,
@@ -337,15 +340,14 @@ def test_router_triggers_bwe_on_severe_rolloff() -> None:
         hf_rolloff_hz=3500.0,
     )
     recipe = route_features(features)
+    # BWE is disabled, so we fallback to passthrough since no other stages are active
     assert len(recipe.stages) == 1
-    assert recipe.stages[0].stage_name == "bandwidth_extension"
-    assert recipe.stages[0].strength == pytest.approx(0.5)
-    assert recipe.stages[0].params.params["cutoff_frequency_hz"] == 3500.0
+    assert recipe.stages[0].stage_name == "passthrough"
 
 
 def test_router_triggers_bwe_on_medium_rolloff() -> None:
     """
-    Asserts that medium high-frequency rolloff (4000 to 6000 Hz) triggers BWE at strength 0.4.
+    Asserts that medium high-frequency rolloff (4000 to 6000 Hz) does NOT trigger BWE in V1.
     """
     features = AudioFeatures(
         sample_rate=48000,
@@ -357,13 +359,12 @@ def test_router_triggers_bwe_on_medium_rolloff() -> None:
     )
     recipe = route_features(features)
     assert len(recipe.stages) == 1
-    assert recipe.stages[0].stage_name == "bandwidth_extension"
-    assert recipe.stages[0].strength == pytest.approx(0.4)
+    assert recipe.stages[0].stage_name == "passthrough"
 
 
 def test_router_triggers_bwe_on_light_rolloff() -> None:
     """
-    Asserts that light high-frequency rolloff (6000 to 8000 Hz) triggers BWE at strength 0.25.
+    Asserts that light high-frequency rolloff (6000 to 8000 Hz) does NOT trigger BWE in V1.
     """
     features = AudioFeatures(
         sample_rate=48000,
@@ -375,13 +376,12 @@ def test_router_triggers_bwe_on_light_rolloff() -> None:
     )
     recipe = route_features(features)
     assert len(recipe.stages) == 1
-    assert recipe.stages[0].stage_name == "bandwidth_extension"
-    assert recipe.stages[0].strength == pytest.approx(0.25)
+    assert recipe.stages[0].stage_name == "passthrough"
 
 
 def test_router_bwe_bypassed_for_wideband() -> None:
     """
-    Asserts that high-frequency rolloff >= 8000 Hz does not trigger BWE.
+    Asserts that high-frequency rolloff >= 8000 Hz does not trigger BWE in V1.
     """
     features = AudioFeatures(
         sample_rate=48000,
@@ -398,9 +398,7 @@ def test_router_bwe_bypassed_for_wideband() -> None:
 
 def test_router_bwe_capped_for_classical() -> None:
     """
-    CRITICAL CULTURAL FIDELITY TEST.
-    Asserts that classical recordings cap the bandwidth extension strength at 0.3
-    even if the rolloff is severe (< 4000 Hz, which normally triggers 0.5).
+    Asserts that BWE is disabled in V1 even on classical recordings with severe rolloff.
     """
     class MockAudioFeatures:
         def __init__(self, snr: float, centroid: float, crest: float, click_rate: float, rolloff: float):
@@ -431,7 +429,26 @@ def test_router_bwe_capped_for_classical() -> None:
     recipe = route_features(classical_features)  # type: ignore[arg-type]
 
     assert len(recipe.stages) == 1
-    assert recipe.stages[0].stage_name == "bandwidth_extension"
-    assert recipe.stages[0].strength == pytest.approx(0.3)
+    assert recipe.stages[0].stage_name == "passthrough"
+
+
+def test_router_bwe_unconditionally_disabled_in_v1() -> None:
+    """
+    CRITICAL V1 ROUTER TEST.
+    Asserts that regardless of the hf_rolloff_hz value, bandwidth_extension
+    is never added to the recipe in V1.
+    """
+    for rolloff in [1000.0, 3000.0, 5000.0, 7000.0]:
+        features = AudioFeatures(
+            sample_rate=48000,
+            channels=2,
+            duration_s=30.0,
+            snr_estimate_db=36.0,
+            click_rate_per_s=0.0,
+            hf_rolloff_hz=rolloff,
+        )
+        recipe = route_features(features)
+        assert len(recipe.stages) == 1
+        assert recipe.stages[0].stage_name == "passthrough"
 
 

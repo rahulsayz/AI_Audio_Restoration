@@ -111,27 +111,15 @@ def route_features(features: AudioFeatures) -> RestorationRecipe:
         recipe.stages.append(declick_invocation)
 
     # 4. Determine bandwidth_extension strength based on hf_rolloff_hz
+    # NOTE: In V1, we unconditionally disable bandwidth_extension (bwe_strength = 0.0).
+    # This is a deliberate design decision to prevent the stage from running on clean
+    # audio. The V1 feature 'hf_rolloff_hz' measures energy concentration rather than
+    # the actual high-frequency bandwidth cutoff. Consequently, clean wideband audio
+    # was incorrectly routed to bandwidth extension, destroying natural high-frequency
+    # details and replacing them with synthetic harmonics.
+    # We keep the logic intact but bypass it here, pending a research-grade bandwidth-cutoff
+    # detector and an opt-in/opt-out user interface in Phase 2.
     bwe_strength = 0.0
-    if features is not None and features.HasField("hf_rolloff_hz"):
-        hf_rolloff = features.hf_rolloff_hz
-        if hf_rolloff < 8000.0:
-            if hf_rolloff < 4000.0:
-                bwe_strength = 0.5
-            elif 4000.0 <= hf_rolloff < 6000.0:
-                bwe_strength = 0.4
-            else:  # 6000.0 <= hf_rolloff < 8000.0
-                bwe_strength = 0.25
-        
-        # Apply is_classical cap: cap strength at 0.3 to protect classical instruments
-        is_classical = getattr(features, "is_classical", False)
-        spectral_centroid = getattr(features, "spectral_centroid_hz", None)
-        crest_factor = getattr(features, "crest_factor", None)
-        if not is_classical and spectral_centroid is not None and crest_factor is not None:
-            if spectral_centroid < 1500.0 and crest_factor > 15.0:
-                is_classical = True
-        
-        if is_classical:
-            bwe_strength = min(bwe_strength, 0.3)
 
     if bwe_strength > 0.0:
         bwe_params = StageParams()
