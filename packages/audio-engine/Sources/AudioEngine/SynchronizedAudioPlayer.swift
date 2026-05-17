@@ -22,6 +22,9 @@ public final class SynchronizedAudioPlayer {
     private var timeUpdateTimer: Timer?
     public var onTimeUpdate: ((Double, Double) -> Void)? // currentTime, totalDuration
     
+    private let fftAnalyzer = RealtimeFFTAnalyzer()
+    public var onSpectrumUpdate: (([Float]) -> Void)?
+    
     public init() {
         engine.attach(originalPlayer)
         engine.attach(restoredPlayer)
@@ -31,10 +34,22 @@ public final class SynchronizedAudioPlayer {
         engine.connect(originalPlayer, to: mixer, format: format)
         engine.connect(restoredPlayer, to: mixer, format: format)
         engine.connect(mixer, to: engine.mainMixerNode, format: format)
+        
+        mixer.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, time in
+            guard let self = self, self.isPlaying else { return }
+            guard let floatData = buffer.floatChannelData else { return }
+            let frameLength = Int(buffer.frameLength)
+            if frameLength >= 1024 {
+                let samples = Array(UnsafeBufferPointer(start: floatData[0], count: 1024))
+                let spectrum = self.fftAnalyzer.analyze(samples: samples, sampleRate: buffer.format.sampleRate)
+                self.onSpectrumUpdate?(spectrum)
+            }
+        }
     }
     
     deinit {
         stop()
+        mixer.removeTap(onBus: 0)
         engine.stop()
     }
     
@@ -141,6 +156,7 @@ public final class SynchronizedAudioPlayer {
         restoredPlayer.pause()
         isPlaying = false
         stopTimeUpdateTimer()
+        onSpectrumUpdate?(Array(repeating: 0.0, count: 30))
     }
     
     /// Stops playback and resets playhead.
@@ -150,6 +166,7 @@ public final class SynchronizedAudioPlayer {
         isPlaying = false
         stopTimeUpdateTimer()
         schedule(fromFrame: 0)
+        onSpectrumUpdate?(Array(repeating: 0.0, count: 30))
     }
     
     /// Toggles active playback track using a click-free 30ms programmatic crossfade.

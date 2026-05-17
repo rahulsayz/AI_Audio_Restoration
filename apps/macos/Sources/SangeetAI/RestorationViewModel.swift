@@ -45,6 +45,7 @@ public final class RestorationViewModel: ObservableObject {
     @Published public var restoredLUFSVal: Double? = nil
     @Published public var originalAmplitudes: [Float] = []
     @Published public var restoredAmplitudes: [Float] = []
+    @Published public var playerSpectrum: [Float] = Array(repeating: 0.0, count: 30)
     
     private var player: SynchronizedAudioPlayer? = nil
     private var database: LibraryDatabase? = nil
@@ -438,6 +439,13 @@ public final class RestorationViewModel: ObservableObject {
                         }
                     }
                     
+                    p.onSpectrumUpdate = { [weak self] spectrum in
+                        guard let self = self else { return }
+                        Task { @MainActor in
+                            self.playerSpectrum = spectrum
+                        }
+                    }
+                    
                     self.isPlayerPreparing = false
                 }
             } catch {
@@ -463,6 +471,7 @@ public final class RestorationViewModel: ObservableObject {
         restoredLUFSVal = nil
         originalAmplitudes = []
         restoredAmplitudes = []
+        playerSpectrum = Array(repeating: 0.0, count: 30)
     }
     
     public func togglePlayback() {

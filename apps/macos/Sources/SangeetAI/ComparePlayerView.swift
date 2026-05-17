@@ -3,6 +3,7 @@ import AudioEngine
 
 struct ComparePlayerView: View {
     @ObservedObject var viewModel: RestorationViewModel
+    @State private var isFrequencyDomain = false
     
     var body: some View {
         VStack(spacing: 16) {
@@ -28,6 +29,24 @@ struct ComparePlayerView: View {
                         
                         Spacer()
                         
+                        // Domain Toggle Button
+                        Button(action: { isFrequencyDomain.toggle() }) {
+                            HStack(spacing: 4) {
+                                Image(systemName: isFrequencyDomain ? "waveform" : "chart.bar.xaxis")
+                                    .font(.system(size: 10))
+                                Text(isFrequencyDomain ? "TIME VIEW" : "SPECTRUM VIEW")
+                                    .font(.system(size: 8, weight: .bold, design: .rounded))
+                            }
+                            .foregroundStyle(RestorationTheme.subtleText)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.white.opacity(0.06))
+                            .cornerRadius(4)
+                        }
+                        .buttonStyle(.plain)
+                        
+                        Spacer().frame(width: 16)
+                        
                         if let origLUFS = viewModel.originalLUFSVal, let restLUFS = viewModel.restoredLUFSVal {
                             let delta = restLUFS - origLUFS
                             Text(String(format: "Matched Gain: %.1f dB", delta))
@@ -36,17 +55,24 @@ struct ComparePlayerView: View {
                         }
                     }
                     
-                    // Stacked Dual-Waveform Display
-                    StackedWaveformView(
-                        originalAmplitudes: viewModel.originalAmplitudes,
-                        restoredAmplitudes: viewModel.restoredAmplitudes,
-                        progress: viewModel.playerProgress,
-                        isOriginalActive: viewModel.playerOriginalActive,
-                        restoredColor: viewModel.selectedPreset == .streaming ? RestorationTheme.neonTeal : RestorationTheme.saffron,
-                        onSeek: { percent in
-                            viewModel.seekPlayer(toPercent: percent)
-                        }
-                    )
+                    if isFrequencyDomain {
+                        SpectrumVisualizerView(
+                            spectrum: viewModel.playerSpectrum,
+                            color: viewModel.playerOriginalActive ? Color.gray : (viewModel.selectedPreset == .streaming ? RestorationTheme.neonTeal : RestorationTheme.saffron)
+                        )
+                    } else {
+                        // Stacked Dual-Waveform Display
+                        StackedWaveformView(
+                            originalAmplitudes: viewModel.originalAmplitudes,
+                            restoredAmplitudes: viewModel.restoredAmplitudes,
+                            progress: viewModel.playerProgress,
+                            isOriginalActive: viewModel.playerOriginalActive,
+                            restoredColor: viewModel.selectedPreset == .streaming ? RestorationTheme.neonTeal : RestorationTheme.saffron,
+                            onSeek: { percent in
+                                viewModel.seekPlayer(toPercent: percent)
+                            }
+                        )
+                    }
                     
                     // Time Counter labels
                     HStack {
