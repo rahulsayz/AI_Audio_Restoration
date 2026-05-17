@@ -7,6 +7,7 @@ import pytest
 
 from sangeet_inference.stages.passthrough import PassthroughStage
 
+
 def test_passthrough_stage_metadata() -> None:
     """
     Validates general structural metadata of PassthroughStage.

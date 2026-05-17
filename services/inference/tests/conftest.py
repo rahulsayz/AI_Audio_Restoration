@@ -2,9 +2,16 @@
 Pytest configuration and fixtures.
 Provides the standard synthetic audio signal generator for unit and integration testing.
 """
-import sangeet_inference  # Injects sangeet_inference/proto into sys.path globally
-import pytest
+import sys
+from pathlib import Path
+
+# Ensure sangeet_inference/proto is in sys.path so generated stubs are importable
+proto_dir = Path(__file__).parent.parent / "sangeet_inference" / "proto"
+if proto_dir.exists() and str(proto_dir) not in sys.path:
+    sys.path.insert(0, str(proto_dir))
 import numpy as np
+import pytest
+
 
 def make_test_signal(kind: str, duration: float, sr: int) -> np.ndarray:
     """
@@ -24,12 +31,12 @@ def make_test_signal(kind: str, duration: float, sr: int) -> np.ndarray:
     if kind == "silence":
         return np.zeros((1, num_samples), dtype=np.float32)
         
-    elif kind == "sine":
+    if kind == "sine":
         # 1 kHz reference sine wave
         y = np.sin(2 * np.pi * 1000.0 * t)
         return y.reshape(1, -1).astype(np.float32)
         
-    elif kind == "pink_noise":
+    if kind == "pink_noise":
         # Standard white noise filtered with 1/f spectral envelope
         uneven = np.random.default_rng(seed=42).standard_normal(num_samples)
         f = np.fft.rfftfreq(num_samples)
@@ -43,21 +50,20 @@ def make_test_signal(kind: str, duration: float, sr: int) -> np.ndarray:
             filtered = (filtered / max_val) * 0.5
         return filtered.reshape(1, -1).astype(np.float32)
         
-    elif kind == "impulse":
+    if kind == "impulse":
         # Single Dirac impulse centered in the window
         y = np.zeros(num_samples, dtype=np.float32)
         y[num_samples // 2] = 1.0
         return y.reshape(1, -1).astype(np.float32)
         
-    elif kind == "swept_sine":
+    if kind == "swept_sine":
         # Logarithmic chirp sweep from 20 Hz to 20 kHz
         f0, f1 = 20.0, 20000.0
         beta = np.log(f1 / f0) / duration
         y = np.sin(2 * np.pi * f0 * (np.exp(beta * t) - 1.0) / beta)
         return y.reshape(1, -1).astype(np.float32)
         
-    else:
-        raise ValueError(f"Unknown signal kind: {kind}")
+    raise ValueError(f"Unknown signal kind: {kind}")
 
 @pytest.fixture
 def make_signal():

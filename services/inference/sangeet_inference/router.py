@@ -22,7 +22,26 @@ def route_features(features: AudioFeatures) -> RestorationRecipe:
     """
     recipe = RestorationRecipe()
 
-    # 1. Determine deep_filter_net strength based on SNR estimate
+    # 1. Determine dehum strength based on hum detection
+    dehum_strength = 0.0
+    if features is not None:
+        hum_50 = getattr(features, "hum_50hz_present", False)
+        hum_60 = getattr(features, "hum_60hz_present", False)
+        if hum_50 or hum_60:
+            dehum_strength = 0.5
+    else:
+        dehum_strength = 0.5
+
+    if dehum_strength > 0.0:
+        dehum_params = StageParams()
+        dehum_params.params["strength"] = dehum_strength
+
+        dehum_invocation = StageInvocation(
+            stage_name="dehum", strength=dehum_strength, params=dehum_params
+        )
+        recipe.stages.append(dehum_invocation)
+
+    # 2. Determine deep_filter_net strength based on SNR estimate
     strength = 0.0
     if features is not None and features.HasField("snr_estimate_db"):
         snr = features.snr_estimate_db
@@ -61,7 +80,37 @@ def route_features(features: AudioFeatures) -> RestorationRecipe:
         )
         recipe.stages.append(invocation)
 
-    # 2. Fallback to passthrough if no active stages are selected
+    # 3. Determine declick strength based on click_rate_per_s
+    declick_strength = 0.0
+    if features is not None and features.HasField("click_rate_per_s"):
+        click_rate = features.click_rate_per_s
+        if click_rate > 10.0:
+            declick_strength = 0.8
+        elif 5.0 <= click_rate <= 10.0:
+            declick_strength = 0.5
+        elif 1.0 <= click_rate < 5.0:
+            declick_strength = 0.3
+        elif 0.0 < click_rate < 1.0:
+            declick_strength = 0.1
+        else:  # click_rate == 0.0
+            declick_strength = 0.0
+    elif features is not None:
+        # Default-on fallback if click_rate_per_s is not present / omitted
+        declick_strength = 0.5
+    else:
+        declick_strength = 0.0
+
+    if declick_strength > 0.0:
+        declick_params = StageParams()
+        declick_params.params["strength"] = declick_strength
+        declick_params.params["threshold_multiplier"] = 5.0
+
+        declick_invocation = StageInvocation(
+            stage_name="declick", strength=declick_strength, params=declick_params
+        )
+        recipe.stages.append(declick_invocation)
+
+    # 4. Fallback to passthrough if no active stages are selected
     if len(recipe.stages) == 0:
         invocation = StageInvocation(
             stage_name="passthrough", strength=1.0, params=None

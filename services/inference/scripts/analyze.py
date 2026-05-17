@@ -2,9 +2,10 @@
 """
 CLI tool to analyze an audio file and print its AudioFeatures (including dynamic cultural metrics) as YAML.
 """
+import argparse
 import os
 import sys
-import argparse
+
 import yaml
 
 # Resolve paths correctly relative to script location
@@ -13,9 +14,9 @@ PROJECT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
 if PROJECT_DIR not in sys.path:
     sys.path.insert(0, PROJECT_DIR)
 
-import sangeet_inference  # Injects sangeet_inference/proto into sys.path
 from sangeet_inference.features import extract_audio_features
 from sangeet_inference.router import route_features
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(

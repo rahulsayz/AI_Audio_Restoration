@@ -4,17 +4,16 @@ Tests the real SangeetRestorationServicer over a Unix Domain Socket (UDS) channe
 """
 import os
 import tempfile
-import time
-import queue
-import threading
 from concurrent.futures import ThreadPoolExecutor
+
+import grpc
 import numpy as np
 import pytest
-import grpc
 import soundfile as sf
-
 from sangeet.v1 import restoration_pb2, restoration_pb2_grpc
+
 from sangeet_inference.daemon import SangeetRestorationServicer
+
 
 @pytest.fixture(scope="module")
 def grpc_server():

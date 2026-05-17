@@ -177,6 +177,43 @@ class DeepFilterNetStage:
             # Convert back to NumPy array
             enhanced_np = enhanced_tensor.numpy()
 
+            # --- CULTURAL FIDELITY: Narrowband Tone Protection (Spectral Shield) ---
+            # Identifies and protects narrow musical tones (like sitar sympathetic resonance, 
+            # harmonium fundamentals, or clean tuning references) from being aggressively 
+            # suppressed by the speech-biased denoiser.
+            for ch in range(chunk.shape[0]):
+                x_in = chunk[ch]
+                x_out = enhanced_np[ch]
+                
+                n_samples = len(x_in)
+                x_in_fft = np.fft.rfft(x_in)
+                x_out_fft = np.fft.rfft(x_out)
+                
+                mag_in = np.abs(x_in_fft)
+                
+                # Detect strong narrow peaks (local maximum and > -40 dBFS absolute magnitude).
+                # For a tone of amplitude 0.5, the peak magnitude in FFT is 0.25 * n_samples.
+                # A 0.005 * n_samples threshold is safe, detecting peaks with amplitude >= 0.01.
+                peaks = np.zeros_like(mag_in, dtype=bool)
+                if len(mag_in) > 2:
+                    peaks[1:-1] = (
+                        (mag_in[1:-1] > 0.005 * n_samples) & 
+                        (mag_in[1:-1] > mag_in[:-2]) & 
+                        (mag_in[1:-1] > mag_in[2:])
+                    )
+                
+                if np.any(peaks):
+                    # Protect detected peaks by restoring original amplitude and phase
+                    # across a 3-bin window, preserving full sinusoidal energy and phase.
+                    for p_idx in np.where(peaks)[0]:
+                        for offset in [-1, 0, 1]:
+                            neighbor = p_idx + offset
+                            if 0 <= neighbor < len(x_out_fft):
+                                x_out_fft[neighbor] = x_in_fft[neighbor]
+                    
+                    enhanced_np[ch] = np.fft.irfft(x_out_fft, n=n_samples)
+            # -----------------------------------------------------------------------
+
             # Clip to [-1.0, 1.0] to prevent digital clipping
             return np.clip(enhanced_np, -1.0, 1.0, dtype=np.float32)  # type: ignore[no-any-return]
         except Exception as e:

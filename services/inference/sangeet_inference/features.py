@@ -4,6 +4,7 @@ Extracts structural, degradational, and cultural properties of an input audio fi
 """
 import os
 import typing
+
 import numpy as np
 import scipy.signal
 import soundfile as sf
@@ -202,7 +203,7 @@ def detect_hum(audio: np.ndarray, sr: int) -> dict[int, bool]:
     """
     mono = _to_mono(audio)
     targets = [50, 60, 100, 120, 150, 180]
-    results = {f: False for f in targets}
+    results = dict.fromkeys(targets, False)
     
     nperseg = min(32768, len(mono))
     if nperseg < 2048:

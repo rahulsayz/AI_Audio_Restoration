@@ -1,5 +1,6 @@
 import SwiftUI
 import UniformTypeIdentifiers
+import AudioEngine
 
 public struct RestorationView: View {
     @ObservedObject var viewModel: RestorationViewModel

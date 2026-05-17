@@ -4,20 +4,21 @@ Manual smoke test for the Sangeet AI Python Inference Daemon.
 Validates subprocess lifecycle, UDS gRPC communication, analysis, restoration streams, and shutdown.
 """
 import os
+import subprocess
 import sys
 import time
-import subprocess
+
+import grpc
 import numpy as np
 import soundfile as sf
-import grpc
 
 # 1. Setup path imports relative to script location
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
 sys.path.insert(0, PROJECT_DIR)
 
-import sangeet_inference  # Injects sangeet_inference/proto into sys.path
 from sangeet.v1 import restoration_pb2, restoration_pb2_grpc
+
 
 def main() -> None:
     socket_path = os.path.expanduser("~/Library/Application Support/SangeetAI/inference.sock")

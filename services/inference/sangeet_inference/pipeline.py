@@ -14,7 +14,9 @@ import torchaudio
 from sangeet.v1.restoration_pb2 import RestorationRecipe
 
 from sangeet_inference.stages.base import RestorationStage
+from sangeet_inference.stages.declick import DeclickStage
 from sangeet_inference.stages.deep_filter_net import DeepFilterNetStage
+from sangeet_inference.stages.dehum import DehumStage
 from sangeet_inference.stages.passthrough import PassthroughStage
 
 logger = structlog.get_logger()
@@ -33,7 +35,9 @@ class RestorationPipeline:
         # Register available stages.
         self.stages: dict[str, RestorationStage] = {
             "passthrough": PassthroughStage(),
-            "deep_filter_net": DeepFilterNetStage()
+            "deep_filter_net": DeepFilterNetStage(),
+            "declick": DeclickStage(),
+            "dehum": DehumStage()
         }
         logger.info("RestorationPipeline initialized", loaded_stages=list(self.stages.keys()))
 
