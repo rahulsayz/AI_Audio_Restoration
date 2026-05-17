@@ -12,6 +12,10 @@ public final class RestorationViewModel: ObservableObject {
     @Published public private(set) var durationString: String = ""
     @Published public private(set) var sampleRateString: String = ""
     
+    // Audio Analysis state
+    @Published public private(set) var isAnalyzing: Bool = false
+    @Published public private(set) var analysisResult: SangeetV1AnalysisResult? = nil
+    
     // Processing state
     @Published public private(set) var isProcessing: Bool = false
     @Published public private(set) var progress: Double = 0.0
@@ -64,6 +68,24 @@ public final class RestorationViewModel: ObservableObject {
             self.durationString = "--:--"
             print("[RestorationViewModel] Local AVFoundation metadata read failed: \(error.localizedDescription)")
         }
+        
+        // Asynchronously trigger AnalyzeAudio daemon RPC immediately when the file is dropped
+        self.isAnalyzing = true
+        self.analysisResult = nil
+        
+        let daemonPath = ProcessInfo.processInfo.environment["SANGEET_DAEMON_PATH"]
+        Task {
+            do {
+                try coordinator.prepare(daemonPath: daemonPath)
+                let result = try await coordinator.analyzeAudio(inputURL: url)
+                self.analysisResult = result
+                self.isAnalyzing = false
+            } catch {
+                print("[RestorationViewModel] Audio analysis daemon RPC failed: \(error.localizedDescription)")
+                self.errorMessage = "Sangeet couldn't analyze the audio characteristics: \(error.localizedDescription). You can still proceed with restoration using default settings."
+                self.isAnalyzing = false
+            }
+        }
     }
     
     /// Triggers the restoration pipeline via the RestorationCoordinator
@@ -93,12 +115,18 @@ public final class RestorationViewModel: ObservableObject {
             print("[RestorationViewModel] Using SANGEET_DAEMON_PATH: \(path)")
         }
         
-        // Configure default Broadband Denoise recipe stage for Phase 1 proof-of-concept
-        var recipe = SangeetV1RestorationRecipe()
-        var denoiseInvocation = SangeetV1StageInvocation()
-        denoiseInvocation.stageName = "deepfilternet_3"
-        denoiseInvocation.strength = 0.5 // Default conservative strength
-        recipe.stages = [denoiseInvocation]
+        // Use recipe from analysis result, with a conservative deep_filter_net fallback if analysis failed/skipped
+        let recipe: SangeetV1RestorationRecipe
+        if let analysis = self.analysisResult {
+            recipe = analysis.suggestedRecipe
+        } else {
+            var defaultRecipe = SangeetV1RestorationRecipe()
+            var denoiseInvocation = SangeetV1StageInvocation()
+            denoiseInvocation.stageName = "deep_filter_net"
+            denoiseInvocation.strength = 0.5
+            defaultRecipe.stages = [denoiseInvocation]
+            recipe = defaultRecipe
+        }
         
         restorationTask = Task {
             do {
@@ -167,6 +195,8 @@ public final class RestorationViewModel: ObservableObject {
         self.errorMessage = nil
         self.outputFileURL = nil
         self.restorationComplete = false
+        self.isAnalyzing = false
+        self.analysisResult = nil
         restorationTask?.cancel()
         restorationTask = nil
     }

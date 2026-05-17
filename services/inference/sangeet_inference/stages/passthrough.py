@@ -2,8 +2,10 @@
 Passthrough restoration stage.
 Returns the input audio unmodified, providing a transparent baseline for testing.
 """
-from typing import Dict, Any
+from typing import Any
+
 import numpy as np
+
 
 class PassthroughStage:
     """
@@ -26,7 +28,7 @@ class PassthroughStage:
         """
         return 0.001 * duration_s
 
-    def process(self, chunk: np.ndarray, params: Dict[str, Any]) -> np.ndarray:
+    def process(self, chunk: np.ndarray[Any, Any], params: dict[str, Any]) -> np.ndarray[Any, Any]:
         """
         Returns the input chunk unchanged.
         

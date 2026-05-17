@@ -60,14 +60,16 @@ def test_grpc_get_capabilities(grpc_server) -> None:
 
 def test_grpc_list_models(grpc_server) -> None:
     """
-    Verifies model listing query returns the passthrough baseline model.
+    Verifies model listing query returns both passthrough and deep_filter_net models.
     """
     stub, _ = grpc_server
     response = stub.ListModels(restoration_pb2.Empty())
     
-    assert len(response.models) == 1
+    assert len(response.models) == 2
     assert response.models[0].name == "passthrough"
     assert response.models[0].status == "LOADED"
+    assert response.models[1].name == "deep_filter_net"
+    assert response.models[1].status == "LOADED"
 
 def test_grpc_prepare_models(grpc_server) -> None:
     """
@@ -102,7 +104,7 @@ def test_grpc_analyze_audio(grpc_server) -> None:
         assert response.features.channels == 1
         assert response.features.duration_s == pytest.approx(1.0)
         
-        # Verify router yielded passthrough
+        # Verify router yielded passthrough as the stage since SNR is unknown (skipped deep_filter_net)
         assert len(response.suggested_recipe.stages) == 1
         assert response.suggested_recipe.stages[0].stage_name == "passthrough"
     finally:

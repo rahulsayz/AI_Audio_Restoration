@@ -2,24 +2,70 @@
 Sangeet AI Intelligence Router.
 Decides the sequence of restoration stages and strengths based on input features.
 """
-from sangeet.v1.restoration_pb2 import AudioFeatures, RestorationRecipe, StageInvocation
+from sangeet.v1.restoration_pb2 import (
+    AudioFeatures,
+    RestorationRecipe,
+    StageInvocation,
+    StageParams,
+)
+
 
 def route_features(features: AudioFeatures) -> RestorationRecipe:
     """
     Decides the correct pipeline stages and strengths based on cultural audio features.
-    For Phase 1, returns a recipe containing only the passthrough stage.
-    
+
     Args:
         features: AudioFeatures protobuf object.
-        
+
     Returns:
         RestorationRecipe protobuf object specifying the ordered processing chain.
     """
     recipe = RestorationRecipe()
-    invocation = StageInvocation(
-        stage_name="passthrough",
-        strength=1.0,
-        params=None
-    )
-    recipe.stages.append(invocation)
+
+    # 1. Determine deep_filter_net strength based on SNR estimate
+    strength = 0.0
+    if features is not None and features.HasField("snr_estimate_db"):
+        snr = features.snr_estimate_db
+        if snr < 15.0:
+            strength = 0.7
+        elif 15.0 <= snr < 25.0:
+            strength = 0.5
+        elif 25.0 <= snr < 35.0:
+            strength = 0.3
+        else:  # snr >= 35.0
+            strength = 0.0
+
+        # Apply is_classical heuristic to cap the strength at 0.5 for cultural fidelity.
+        # Heuristic for V1: is_classical = (spectral_centroid_hz < 1500 AND crest_factor > 15 dB)
+        is_classical = getattr(features, "is_classical", False)
+        spectral_centroid = getattr(features, "spectral_centroid_hz", None)
+        crest_factor = getattr(features, "crest_factor", None)
+
+        if not is_classical and spectral_centroid is not None and crest_factor is not None:
+            if spectral_centroid < 1500.0 and crest_factor > 15.0:
+                is_classical = True
+
+        if is_classical:
+            # Cap strength at 0.5 for classical music to preserve subtle ornamentation/resonance
+            strength = min(strength, 0.5)
+    else:
+        # Unknown/missing SNR -> strength 0.0 (skip)
+        strength = 0.0
+
+    if strength > 0.0:
+        params = StageParams()
+        params.params["strength"] = strength
+
+        invocation = StageInvocation(
+            stage_name="deep_filter_net", strength=strength, params=params
+        )
+        recipe.stages.append(invocation)
+
+    # 2. Fallback to passthrough if no active stages are selected
+    if len(recipe.stages) == 0:
+        invocation = StageInvocation(
+            stage_name="passthrough", strength=1.0, params=None
+        )
+        recipe.stages.append(invocation)
+
     return recipe

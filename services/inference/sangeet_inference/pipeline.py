@@ -2,17 +2,19 @@
 Sangeet AI Pipeline Orchestration.
 Processes full-length and chunked audio data sequentially through the chosen DSP/ML models.
 """
-import time
 import threading
-from typing import Callable, Optional, Dict, Any, List
+from collections.abc import Callable
+from typing import Any
+
 import numpy as np
 import soundfile as sf
 import structlog
 import torch
 import torchaudio
-
 from sangeet.v1.restoration_pb2 import RestorationRecipe
+
 from sangeet_inference.stages.base import RestorationStage
+from sangeet_inference.stages.deep_filter_net import DeepFilterNetStage
 from sangeet_inference.stages.passthrough import PassthroughStage
 
 logger = structlog.get_logger()
@@ -28,9 +30,10 @@ class RestorationPipeline:
         """
         Loads all available restoration stages.
         """
-        # Register available stages. V1 starts with PassthroughStage.
-        self.stages: Dict[str, RestorationStage] = {
-            "passthrough": PassthroughStage()
+        # Register available stages.
+        self.stages: dict[str, RestorationStage] = {
+            "passthrough": PassthroughStage(),
+            "deep_filter_net": DeepFilterNetStage()
         }
         logger.info("RestorationPipeline initialized", loaded_stages=list(self.stages.keys()))
 
@@ -53,7 +56,7 @@ class RestorationPipeline:
         sr: int,
         window_s: float = 30.0,
         overlap_s: float = 1.0
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Chunks the input audio array into overlapping windows.
         Pads the rightmost boundary using reflection padding if the length
@@ -118,7 +121,7 @@ class RestorationPipeline:
 
     def assemble_chunks(
         self,
-        chunks: List[Dict[str, Any]],
+        chunks: list[dict[str, Any]],
         original_len: int,
         sr: int,
         window_s: float = 30.0,
@@ -150,7 +153,7 @@ class RestorationPipeline:
         fade_in = np.sin((np.pi / 2.0) * (n / (overlap_len - 1)))
         fade_out = np.cos((np.pi / 2.0) * (n / (overlap_len - 1)))
 
-        for i, chunk in enumerate(chunks):
+        for _i, chunk in enumerate(chunks):
             start_idx = chunk["start_idx"]
             data = chunk["data"]
             
@@ -180,7 +183,7 @@ class RestorationPipeline:
         output_path: str,
         recipe: RestorationRecipe,
         cancel_event: threading.Event,
-        progress_callback: Optional[Callable[[str, float], None]] = None,
+        progress_callback: Callable[[str, float], None] | None = None,
         request_id: str = "unknown"
     ) -> None:
         """
@@ -217,7 +220,7 @@ class RestorationPipeline:
         # 2. Resample to standard pipeline rate (48 kHz)
         pipeline_sr = 48000
         working_audio = self._resample(audio_data, samplerate, pipeline_sr)
-        working_samples = working_audio.shape[1]
+        working_audio.shape[1]
 
         # 3. Check for immediate cancellation
         if cancel_event.is_set():
@@ -265,7 +268,7 @@ class RestorationPipeline:
                     raise RuntimeError("Restoration job was cancelled by the user.")
 
                 # Retrieve stage process params
-                params: Dict[str, Any] = {}
+                params: dict[str, Any] = {}
                 if hasattr(invocation, "params") and invocation.params:
                     params = dict(invocation.params.params)
 

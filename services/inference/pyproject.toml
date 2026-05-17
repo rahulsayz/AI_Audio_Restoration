@@ -13,6 +13,8 @@ dependencies = [
     "structlog>=24.1.0",
     "torch==2.3.0",
     "torchaudio==2.3.0",
+    "deepfilternet>=0.5.0,<0.6.0",
+    "pyloudnorm>=0.1.1",
 ]
 
 [project.optional-dependencies]
@@ -33,6 +35,7 @@ target-version = ['py311']
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+exclude = ["sangeet_inference/proto"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "UP", "B", "A", "C4", "RET", "ARG", "PTH"]

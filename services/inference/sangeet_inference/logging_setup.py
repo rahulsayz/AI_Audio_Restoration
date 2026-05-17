@@ -4,7 +4,9 @@ Configures structlog to output valid JSON lines strictly to standard error (stde
 """
 import logging
 import sys
+
 import structlog
+
 
 def configure_logging(verbose: bool = False) -> None:
     """

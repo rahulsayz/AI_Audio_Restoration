@@ -57,14 +57,166 @@ public struct RestorationView: View {
     }
     
     private var mainContentSection: some View {
-        Group {
+        VStack(spacing: 16) {
             if viewModel.loadedFileURL == nil {
                 dropZoneArea
             } else {
                 fileDetailsCard
+                
+                analysisSection
             }
         }
     }
+    
+    private var analysisSection: some View {
+        Group {
+            if viewModel.isAnalyzing {
+                // Pulse loading view
+                HStack(spacing: 16) {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .scaleEffect(0.8)
+                    Text("Analyzing audio characteristics...")
+                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .foregroundStyle(RestorationTheme.subtleText)
+                }
+                .frame(maxWidth: .infinity, minHeight: 180)
+                .glassCard()
+                .transition(.opacity)
+            } else if let result = viewModel.analysisResult {
+                // Analysis results card
+                VStack(alignment: .leading, spacing: 14) {
+                    HStack {
+                        Text("AUDIO ANALYSIS")
+                            .font(.system(size: 10, weight: .bold, design: .rounded))
+                            .tracking(3)
+                            .foregroundStyle(RestorationTheme.saffron)
+                        
+                        Spacer()
+                        
+                        // Noise floor SNR
+                        Text(String(format: "%.1f dB SNR", result.features.snrEstimateDb))
+                            .font(.system(size: 12, weight: .bold, design: .monospaced))
+                            .foregroundStyle(RestorationTheme.neonTeal)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 3)
+                            .background(RestorationTheme.neonTeal.opacity(0.1))
+                            .cornerRadius(4)
+                    }
+                    
+                    // Badges row
+                    HStack(spacing: 8) {
+                        let badges = getBadges(features: result.features)
+                        if badges.isEmpty {
+                            HStack(spacing: 4) {
+                                Image(systemName: "checkmark.shield.fill")
+                                    .foregroundStyle(RestorationTheme.neonTeal)
+                                Text("Clean Signal (No hum, clicks, or clipping)")
+                                    .font(.system(size: 11, weight: .medium))
+                                    .foregroundStyle(RestorationTheme.neonTeal)
+                            }
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 5)
+                            .background(RestorationTheme.neonTeal.opacity(0.06))
+                            .cornerRadius(6)
+                        } else {
+                            ForEach(badges, id: \.text) { badge in
+                                HStack(spacing: 4) {
+                                    Image(systemName: badge.icon)
+                                    Text(badge.text)
+                                }
+                                .font(.system(size: 11, weight: .semibold))
+                                .foregroundStyle(badge.color)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(badge.color.opacity(0.08))
+                                .cornerRadius(6)
+                            }
+                        }
+                    }
+                    
+                    Divider()
+                        .background(RestorationTheme.glassBorder)
+                    
+                    // Suggested recipe
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("ROUTER RECIPE")
+                            .font(.system(size: 9, weight: .bold, design: .rounded))
+                            .tracking(2)
+                            .foregroundStyle(RestorationTheme.subtleText)
+                        
+                        if result.suggestedRecipe.stages.isEmpty {
+                            Text("Bypass all stages")
+                                .font(.system(size: 12))
+                                .foregroundStyle(RestorationTheme.subtleText)
+                        } else {
+                            HStack(spacing: 10) {
+                                ForEach(result.suggestedRecipe.stages, id: \.stageName) { stage in
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "slider.horizontal.3")
+                                            .font(.system(size: 10))
+                                            .foregroundStyle(RestorationTheme.saffron)
+                                        
+                                        Text(stage.stageName.replacingOccurrences(of: "_", with: " ").capitalized)
+                                            .font(.system(size: 12, weight: .medium))
+                                            .foregroundStyle(.white)
+                                        
+                                        Text(String(format: "%.0f%%", stage.strength * 100.0))
+                                            .font(.system(size: 11, weight: .bold, design: .monospaced))
+                                            .foregroundStyle(RestorationTheme.neonTeal)
+                                    }
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .background(Color.white.opacity(0.03))
+                                    .cornerRadius(8)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(RestorationTheme.glassBorder, lineWidth: 1)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, minHeight: 180, alignment: .topLeading)
+                .glassCard()
+                .transition(.opacity.combined(with: .scale(scale: 0.98)))
+            } else {
+                EmptyView()
+            }
+        }
+    }
+    
+    // Helper to resolve detected issues badges dynamically based on features
+    private struct BadgeData {
+        let text: String
+        let icon: String
+        let color: Color
+    }
+    
+    private func getBadges(features: SangeetV1AudioFeatures) -> [BadgeData] {
+        var badges: [BadgeData] = []
+        
+        if features.hum50HzPresent {
+            badges.append(BadgeData(text: "50Hz Hum", icon: "exclamationmark.shield.fill", color: .orange))
+        }
+        if features.hum60HzPresent {
+            badges.append(BadgeData(text: "60Hz Hum", icon: "exclamationmark.shield.fill", color: .orange))
+        }
+        if features.clippingRate > 0.001 {
+            badges.append(BadgeData(text: String(format: "Clipping (%.1f%%)", features.clippingRate * 100.0), icon: "waveform.path.ecg", color: .red))
+        }
+        if features.clickRatePerS > 0.5 {
+            badges.append(BadgeData(text: String(format: "Clicks (%.1f/s)", features.clickRatePerS), icon: "sparkles", color: .orange))
+        }
+        if features.hfRolloffHz < 6000.0 {
+            badges.append(BadgeData(text: String(format: "HF Rolloff (%.1f kHz)", features.hfRolloffHz / 1000.0), icon: "arrow.down.right.and.arrow.up.left", color: .yellow))
+        }
+        
+        // Take at most 3 to prevent UI layout overflow
+        return Array(badges.prefix(3))
+    }
+
     
     private var dropZoneArea: some View {
         VStack(spacing: 20) {

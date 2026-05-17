@@ -3,14 +3,15 @@ Sangeet AI Python Inference Daemon.
 Manages the gRPC server lifecycle, receives incoming commands, and orchestrates pipeline execution.
 """
 import os
-import sys
-import time
-import signal
-import uuid
 import queue
+import signal
+import sys
 import threading
+import time
+import uuid
+from collections.abc import Iterator
 from concurrent import futures
-from typing import Iterator, Any
+from typing import Any
 
 import grpc
 import structlog
@@ -26,10 +27,11 @@ for d in [PARENT_DIR, PROTO_DIR]:
         sys.path.insert(0, d)
 
 from sangeet.v1 import restoration_pb2, restoration_pb2_grpc
-from sangeet_inference.logging_setup import configure_logging
+
 from sangeet_inference.features import extract_audio_features
-from sangeet_inference.router import route_features
+from sangeet_inference.logging_setup import configure_logging
 from sangeet_inference.pipeline import RestorationPipeline
+from sangeet_inference.router import route_features
 
 logger = structlog.get_logger()
 
@@ -73,6 +75,12 @@ class SangeetRestorationServicer(restoration_pb2_grpc.RestorationServiceServicer
             restoration_pb2.Model(
                 name="passthrough",
                 version="1.0.0",
+                status="LOADED",
+                sha256=""
+            ),
+            restoration_pb2.Model(
+                name="deep_filter_net",
+                version="0.5.6",
                 status="LOADED",
                 sha256=""
             )
@@ -241,11 +249,10 @@ class SangeetRestorationServicer(restoration_pb2_grpc.RestorationServiceServicer
                 self.active_jobs[job_id].set()
                 logger.info("Job cancellation flag set successfully", job_id=job_id)
                 return restoration_pb2.Empty()
-            else:
-                logger.warning("CancelJob failed: active job not found", job_id=job_id)
-                context.set_code(grpc.StatusCode.NOT_FOUND)
-                context.set_details(f"No active job found with ID: {job_id}")
-                raise KeyError(f"Job {job_id} not found")
+            logger.warning("CancelJob failed: active job not found", job_id=job_id)
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details(f"No active job found with ID: {job_id}")
+            raise KeyError(f"Job {job_id} not found")
 
     def Shutdown(
         self,
@@ -259,7 +266,7 @@ class SangeetRestorationServicer(restoration_pb2_grpc.RestorationServiceServicer
 
         # Set cancellation flag for all running jobs
         with self.lock:
-            for job_id, event in self.active_jobs.items():
+            for _job_id, event in self.active_jobs.items():
                 event.set()
 
         def trigger_exit() -> None:
@@ -314,7 +321,7 @@ def main() -> None:
         logger.info("Received termination signal. Shutting down Sangeet AI server.", signum=signum)
         # Terminate all active jobs
         with servicer.lock:
-            for job_id, event in servicer.active_jobs.items():
+            for _job_id, event in servicer.active_jobs.items():
                 event.set()
         
         # Stop gRPC server with 5s grace and wait for thread termination

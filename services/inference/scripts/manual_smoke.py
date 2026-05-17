@@ -36,12 +36,9 @@ def main() -> None:
     python_bin = sys.executable
     daemon_py = os.path.join(PROJECT_DIR, "sangeet_inference", "daemon.py")
     
-    # Run daemon process capturing stderr to monitor logs
+    # Run daemon process with console pass-through to avoid PIPE buffer deadlocks
     daemon_process = subprocess.Popen(
-        [python_bin, daemon_py],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True
+        [python_bin, daemon_py]
     )
     print(f"Daemon process spawned with PID {daemon_process.pid}")
 

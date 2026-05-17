@@ -2,8 +2,10 @@
 Restoration stage abstract contract.
 Declares the protocol defining interfaces and requirements for all audio DSP/ML stages.
 """
-from typing import Protocol, Dict, Any, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
+
 import numpy as np
+
 
 @runtime_checkable
 class RestorationStage(Protocol):
@@ -33,7 +35,7 @@ class RestorationStage(Protocol):
         """
         ...
 
-    def process(self, chunk: np.ndarray, params: Dict[str, Any]) -> np.ndarray:
+    def process(self, chunk: np.ndarray[Any, Any], params: dict[str, Any]) -> np.ndarray[Any, Any]:
         """
         Executes core DSP/ML algorithms on a float32 NumPy array of shape [channels, samples].
         Must return a float32 NumPy array of shape [channels, samples] scaled to [-1.0, 1.0].
