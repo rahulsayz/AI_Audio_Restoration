@@ -44,7 +44,6 @@ venv.bak/
 
 # Swift / Xcode build and package directories
 .build/
-Packages/
 .swiftpm/
 xcuserdata/
 *.xcodeproj/project.xcworkspace/

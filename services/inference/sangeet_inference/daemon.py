@@ -280,6 +280,14 @@ def main() -> None:
 
     # 1. Resolve socket path and ensure directories are present
     socket_path = os.path.expanduser("~/Library/Application Support/SangeetAI/inference.sock")
+    if "--socket" in sys.argv:
+        try:
+            idx = sys.argv.index("--socket")
+            if idx + 1 < len(sys.argv):
+                socket_path = os.path.abspath(os.path.expanduser(sys.argv[idx + 1]))
+        except Exception as e:
+            logger.warning("Failed to parse --socket option", error=str(e))
+
     socket_dir = os.path.dirname(socket_path)
     os.makedirs(socket_dir, exist_ok=True)
 

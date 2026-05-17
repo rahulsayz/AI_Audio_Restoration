@@ -21,205 +21,205 @@ fileprivate nonisolated struct _GeneratedWithProtocGenSwiftVersion: SwiftProtobu
 }
 
 /// Representing an empty payload
-nonisolated struct SangeetV1Empty: Sendable {
+public nonisolated struct SangeetV1Empty: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  var unknownFields = SwiftProtobuf.UnknownStorage()
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  init() {}
+  public init() {}
 }
 
 /// Capabilities of the running daemon process
-nonisolated struct SangeetV1Capabilities: Sendable {
+public nonisolated struct SangeetV1Capabilities: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  var daemonVersion: String = String()
+  public var daemonVersion: String = String()
 
-  var supportedAudioFormats: [String] = []
+  public var supportedAudioFormats: [String] = []
 
-  var mpsAvailable: Bool = false
+  public var mpsAvailable: Bool = false
 
-  var requiresUserConsent: Bool = false
+  public var requiresUserConsent: Bool = false
 
-  var unknownFields = SwiftProtobuf.UnknownStorage()
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  init() {}
+  public init() {}
 }
 
 /// Status and details of a restoration ML model
-nonisolated struct SangeetV1Model: Sendable {
+public nonisolated struct SangeetV1Model: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  var name: String = String()
+  public var name: String = String()
 
-  var version: String = String()
+  public var version: String = String()
 
-  var status: String = String()
+  public var status: String = String()
 
-  var sha256: String = String()
+  public var sha256: String = String()
 
-  var unknownFields = SwiftProtobuf.UnknownStorage()
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  init() {}
+  public init() {}
 }
 
 /// A collection of ML models and their statuses
-nonisolated struct SangeetV1ModelList: Sendable {
+public nonisolated struct SangeetV1ModelList: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  var models: [SangeetV1Model] = []
+  public var models: [SangeetV1Model] = []
 
-  var unknownFields = SwiftProtobuf.UnknownStorage()
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  init() {}
+  public init() {}
 }
 
 /// Request to download and pre-load specific models
-nonisolated struct SangeetV1PrepareRequest: Sendable {
+public nonisolated struct SangeetV1PrepareRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  var modelNames: [String] = []
+  public var modelNames: [String] = []
 
-  var unknownFields = SwiftProtobuf.UnknownStorage()
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  init() {}
+  public init() {}
 }
 
 /// Progress update during model preparation
-nonisolated struct SangeetV1PrepareProgress: Sendable {
+public nonisolated struct SangeetV1PrepareProgress: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  var modelName: String = String()
+  public var modelName: String = String()
 
   /// 0.0 to 100.0 (0.0 is valid)
-  var percentComplete: Double {
+  public var percentComplete: Double {
     get {_percentComplete ?? 0}
     set {_percentComplete = newValue}
   }
   /// Returns true if `percentComplete` has been explicitly set.
-  var hasPercentComplete: Bool {self._percentComplete != nil}
+  public var hasPercentComplete: Bool {self._percentComplete != nil}
   /// Clears the value of `percentComplete`. Subsequent reads from it will return its default value.
-  mutating func clearPercentComplete() {self._percentComplete = nil}
+  public mutating func clearPercentComplete() {self._percentComplete = nil}
 
-  var status: String = String()
+  public var status: String = String()
 
-  var unknownFields = SwiftProtobuf.UnknownStorage()
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  init() {}
+  public init() {}
 
   fileprivate var _percentComplete: Double? = nil
 }
 
 /// Request to analyze a target audio file
-nonisolated struct SangeetV1AnalyzeRequest: Sendable {
+public nonisolated struct SangeetV1AnalyzeRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
   /// Absolute path to input file
-  var inputPath: String = String()
+  public var inputPath: String = String()
 
-  var unknownFields = SwiftProtobuf.UnknownStorage()
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  init() {}
+  public init() {}
 }
 
 /// Culturally-aware audio degradation features extracted during analysis
-nonisolated struct SangeetV1AudioFeatures: Sendable {
+public nonisolated struct SangeetV1AudioFeatures: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
   /// Sample rate in Hz
-  var sampleRate: Int32 = 0
+  public var sampleRate: Int32 = 0
 
   /// Number of channels (mono/stereo only in V1)
-  var channels: Int32 = 0
+  public var channels: Int32 = 0
 
   /// Duration in seconds
-  var durationS: Double = 0
+  public var durationS: Double = 0
 
   /// SNR estimate in dB (0.0 is a valid noisy value)
-  var snrEstimateDb: Double {
+  public var snrEstimateDb: Double {
     get {_snrEstimateDb ?? 0}
     set {_snrEstimateDb = newValue}
   }
   /// Returns true if `snrEstimateDb` has been explicitly set.
-  var hasSnrEstimateDb: Bool {self._snrEstimateDb != nil}
+  public var hasSnrEstimateDb: Bool {self._snrEstimateDb != nil}
   /// Clears the value of `snrEstimateDb`. Subsequent reads from it will return its default value.
-  mutating func clearSnrEstimateDb() {self._snrEstimateDb = nil}
+  public mutating func clearSnrEstimateDb() {self._snrEstimateDb = nil}
 
   /// Spectral centroid in Hz
-  var spectralCentroidHz: Double {
+  public var spectralCentroidHz: Double {
     get {_spectralCentroidHz ?? 0}
     set {_spectralCentroidHz = newValue}
   }
   /// Returns true if `spectralCentroidHz` has been explicitly set.
-  var hasSpectralCentroidHz: Bool {self._spectralCentroidHz != nil}
+  public var hasSpectralCentroidHz: Bool {self._spectralCentroidHz != nil}
   /// Clears the value of `spectralCentroidHz`. Subsequent reads from it will return its default value.
-  mutating func clearSpectralCentroidHz() {self._spectralCentroidHz = nil}
+  public mutating func clearSpectralCentroidHz() {self._spectralCentroidHz = nil}
 
   /// Mains hum detected at 50Hz and harmonics
-  var hum50HzPresent: Bool = false
+  public var hum50HzPresent: Bool = false
 
   /// Mains hum detected at 60Hz and harmonics
-  var hum60HzPresent: Bool = false
+  public var hum60HzPresent: Bool = false
 
   /// Fraction of clipped samples [0.0, 1.0] (0.0 is clean/valid)
-  var clippingRate: Double {
+  public var clippingRate: Double {
     get {_clippingRate ?? 0}
     set {_clippingRate = newValue}
   }
   /// Returns true if `clippingRate` has been explicitly set.
-  var hasClippingRate: Bool {self._clippingRate != nil}
+  public var hasClippingRate: Bool {self._clippingRate != nil}
   /// Clears the value of `clippingRate`. Subsequent reads from it will return its default value.
-  mutating func clearClippingRate() {self._clippingRate = nil}
+  public mutating func clearClippingRate() {self._clippingRate = nil}
 
   /// Transient clicks per second (0.0 is clean/valid)
-  var clickRatePerS: Double {
+  public var clickRatePerS: Double {
     get {_clickRatePerS ?? 0}
     set {_clickRatePerS = newValue}
   }
   /// Returns true if `clickRatePerS` has been explicitly set.
-  var hasClickRatePerS: Bool {self._clickRatePerS != nil}
+  public var hasClickRatePerS: Bool {self._clickRatePerS != nil}
   /// Clears the value of `clickRatePerS`. Subsequent reads from it will return its default value.
-  mutating func clearClickRatePerS() {self._clickRatePerS = nil}
+  public mutating func clearClickRatePerS() {self._clickRatePerS = nil}
 
   /// High-frequency rolloff threshold in Hz
-  var hfRolloffHz: Double {
+  public var hfRolloffHz: Double {
     get {_hfRolloffHz ?? 0}
     set {_hfRolloffHz = newValue}
   }
   /// Returns true if `hfRolloffHz` has been explicitly set.
-  var hasHfRolloffHz: Bool {self._hfRolloffHz != nil}
+  public var hasHfRolloffHz: Bool {self._hfRolloffHz != nil}
   /// Clears the value of `hfRolloffHz`. Subsequent reads from it will return its default value.
-  mutating func clearHfRolloffHz() {self._hfRolloffHz = nil}
+  public mutating func clearHfRolloffHz() {self._hfRolloffHz = nil}
 
   /// Integrated loudness in LUFS
-  var lufsIntegrated: Double {
+  public var lufsIntegrated: Double {
     get {_lufsIntegrated ?? 0}
     set {_lufsIntegrated = newValue}
   }
   /// Returns true if `lufsIntegrated` has been explicitly set.
-  var hasLufsIntegrated: Bool {self._lufsIntegrated != nil}
+  public var hasLufsIntegrated: Bool {self._lufsIntegrated != nil}
   /// Clears the value of `lufsIntegrated`. Subsequent reads from it will return its default value.
-  mutating func clearLufsIntegrated() {self._lufsIntegrated = nil}
+  public mutating func clearLufsIntegrated() {self._lufsIntegrated = nil}
 
-  var unknownFields = SwiftProtobuf.UnknownStorage()
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  init() {}
+  public init() {}
 
   fileprivate var _snrEstimateDb: Double? = nil
   fileprivate var _spectralCentroidHz: Double? = nil
@@ -230,149 +230,149 @@ nonisolated struct SangeetV1AudioFeatures: Sendable {
 }
 
 /// Dynamic parameters for a specific restoration stage
-nonisolated struct SangeetV1StageParams: Sendable {
+public nonisolated struct SangeetV1StageParams: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
   /// Dynamic params (e.g. thresholds, frequency limits)
-  var params: Dictionary<String,Double> = [:]
+  public var params: Dictionary<String,Double> = [:]
 
-  var unknownFields = SwiftProtobuf.UnknownStorage()
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  init() {}
+  public init() {}
 }
 
 /// Definition of a single stage invocation in the signal chain
-nonisolated struct SangeetV1StageInvocation: Sendable {
+public nonisolated struct SangeetV1StageInvocation: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
   /// Unique stage identifier (snake_case)
-  var stageName: String = String()
+  public var stageName: String = String()
 
   /// Processing intensity [0.0, 1.0] (0.0 is bypass/valid)
-  var strength: Double {
+  public var strength: Double {
     get {_strength ?? 0}
     set {_strength = newValue}
   }
   /// Returns true if `strength` has been explicitly set.
-  var hasStrength: Bool {self._strength != nil}
+  public var hasStrength: Bool {self._strength != nil}
   /// Clears the value of `strength`. Subsequent reads from it will return its default value.
-  mutating func clearStrength() {self._strength = nil}
+  public mutating func clearStrength() {self._strength = nil}
 
   /// Optional stage-specific tuning parameters
-  var params: SangeetV1StageParams {
+  public var params: SangeetV1StageParams {
     get {_params ?? SangeetV1StageParams()}
     set {_params = newValue}
   }
   /// Returns true if `params` has been explicitly set.
-  var hasParams: Bool {self._params != nil}
+  public var hasParams: Bool {self._params != nil}
   /// Clears the value of `params`. Subsequent reads from it will return its default value.
-  mutating func clearParams() {self._params = nil}
+  public mutating func clearParams() {self._params = nil}
 
-  var unknownFields = SwiftProtobuf.UnknownStorage()
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  init() {}
+  public init() {}
 
   fileprivate var _strength: Double? = nil
   fileprivate var _params: SangeetV1StageParams? = nil
 }
 
 /// Ordered pipeline recipe of restoration stages
-nonisolated struct SangeetV1RestorationRecipe: Sendable {
+public nonisolated struct SangeetV1RestorationRecipe: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
   /// Sequence of operations to apply
-  var stages: [SangeetV1StageInvocation] = []
+  public var stages: [SangeetV1StageInvocation] = []
 
-  var unknownFields = SwiftProtobuf.UnknownStorage()
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  init() {}
+  public init() {}
 }
 
 /// Result of analyzing an audio file
-nonisolated struct SangeetV1AnalysisResult: Sendable {
+public nonisolated struct SangeetV1AnalysisResult: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
   /// Extracted audio degradation indicators
-  var features: SangeetV1AudioFeatures {
+  public var features: SangeetV1AudioFeatures {
     get {_features ?? SangeetV1AudioFeatures()}
     set {_features = newValue}
   }
   /// Returns true if `features` has been explicitly set.
-  var hasFeatures: Bool {self._features != nil}
+  public var hasFeatures: Bool {self._features != nil}
   /// Clears the value of `features`. Subsequent reads from it will return its default value.
-  mutating func clearFeatures() {self._features = nil}
+  public mutating func clearFeatures() {self._features = nil}
 
   /// Optimized culturally-aware restoration recipe
-  var suggestedRecipe: SangeetV1RestorationRecipe {
+  public var suggestedRecipe: SangeetV1RestorationRecipe {
     get {_suggestedRecipe ?? SangeetV1RestorationRecipe()}
     set {_suggestedRecipe = newValue}
   }
   /// Returns true if `suggestedRecipe` has been explicitly set.
-  var hasSuggestedRecipe: Bool {self._suggestedRecipe != nil}
+  public var hasSuggestedRecipe: Bool {self._suggestedRecipe != nil}
   /// Clears the value of `suggestedRecipe`. Subsequent reads from it will return its default value.
-  mutating func clearSuggestedRecipe() {self._suggestedRecipe = nil}
+  public mutating func clearSuggestedRecipe() {self._suggestedRecipe = nil}
 
-  var unknownFields = SwiftProtobuf.UnknownStorage()
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  init() {}
+  public init() {}
 
   fileprivate var _features: SangeetV1AudioFeatures? = nil
   fileprivate var _suggestedRecipe: SangeetV1RestorationRecipe? = nil
 }
 
 /// Request to initiate the restoration job
-nonisolated struct SangeetV1RestorationRequest: Sendable {
+public nonisolated struct SangeetV1RestorationRequest: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
   /// Absolute path to source audio
-  var inputPath: String = String()
+  public var inputPath: String = String()
 
   /// Absolute path where restored audio will be saved
-  var outputPath: String = String()
+  public var outputPath: String = String()
 
   /// Ordered set of stages to apply
-  var recipe: SangeetV1RestorationRecipe {
+  public var recipe: SangeetV1RestorationRecipe {
     get {_recipe ?? SangeetV1RestorationRecipe()}
     set {_recipe = newValue}
   }
   /// Returns true if `recipe` has been explicitly set.
-  var hasRecipe: Bool {self._recipe != nil}
+  public var hasRecipe: Bool {self._recipe != nil}
   /// Clears the value of `recipe`. Subsequent reads from it will return its default value.
-  mutating func clearRecipe() {self._recipe = nil}
+  public mutating func clearRecipe() {self._recipe = nil}
 
   /// Target loudness, e.g., -14.0 or -9.0 LUFS
-  var targetLoudnessLufs: Double {
+  public var targetLoudnessLufs: Double {
     get {_targetLoudnessLufs ?? 0}
     set {_targetLoudnessLufs = newValue}
   }
   /// Returns true if `targetLoudnessLufs` has been explicitly set.
-  var hasTargetLoudnessLufs: Bool {self._targetLoudnessLufs != nil}
+  public var hasTargetLoudnessLufs: Bool {self._targetLoudnessLufs != nil}
   /// Clears the value of `targetLoudnessLufs`. Subsequent reads from it will return its default value.
-  mutating func clearTargetLoudnessLufs() {self._targetLoudnessLufs = nil}
+  public mutating func clearTargetLoudnessLufs() {self._targetLoudnessLufs = nil}
 
   /// Desired format, e.g. "WAV", "FLAC" (defaults to input format if unset)
-  var outputFormat: String {
+  public var outputFormat: String {
     get {_outputFormat ?? String()}
     set {_outputFormat = newValue}
   }
   /// Returns true if `outputFormat` has been explicitly set.
-  var hasOutputFormat: Bool {self._outputFormat != nil}
+  public var hasOutputFormat: Bool {self._outputFormat != nil}
   /// Clears the value of `outputFormat`. Subsequent reads from it will return its default value.
-  mutating func clearOutputFormat() {self._outputFormat = nil}
+  public mutating func clearOutputFormat() {self._outputFormat = nil}
 
-  var unknownFields = SwiftProtobuf.UnknownStorage()
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  init() {}
+  public init() {}
 
   fileprivate var _recipe: SangeetV1RestorationRecipe? = nil
   fileprivate var _targetLoudnessLufs: Double? = nil
@@ -380,60 +380,60 @@ nonisolated struct SangeetV1RestorationRequest: Sendable {
 }
 
 /// Real-time progress update stream during restoration execution
-nonisolated struct SangeetV1RestorationProgress: Sendable {
+public nonisolated struct SangeetV1RestorationProgress: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
   /// UUID correlating the job
-  var requestID: String = String()
+  public var requestID: String = String()
 
   /// Active stage name
-  var stageName: String = String()
+  public var stageName: String = String()
 
   /// Percentage complete [0.0, 100.0]
-  var percentComplete: Double {
+  public var percentComplete: Double {
     get {_percentComplete ?? 0}
     set {_percentComplete = newValue}
   }
   /// Returns true if `percentComplete` has been explicitly set.
-  var hasPercentComplete: Bool {self._percentComplete != nil}
+  public var hasPercentComplete: Bool {self._percentComplete != nil}
   /// Clears the value of `percentComplete`. Subsequent reads from it will return its default value.
-  mutating func clearPercentComplete() {self._percentComplete = nil}
+  public mutating func clearPercentComplete() {self._percentComplete = nil}
 
   /// Seconds spent so far
-  var elapsedS: Double {
+  public var elapsedS: Double {
     get {_elapsedS ?? 0}
     set {_elapsedS = newValue}
   }
   /// Returns true if `elapsedS` has been explicitly set.
-  var hasElapsedS: Bool {self._elapsedS != nil}
+  public var hasElapsedS: Bool {self._elapsedS != nil}
   /// Clears the value of `elapsedS`. Subsequent reads from it will return its default value.
-  mutating func clearElapsedS() {self._elapsedS = nil}
+  public mutating func clearElapsedS() {self._elapsedS = nil}
 
   /// Estimated seconds remaining
-  var etaS: Double {
+  public var etaS: Double {
     get {_etaS ?? 0}
     set {_etaS = newValue}
   }
   /// Returns true if `etaS` has been explicitly set.
-  var hasEtaS: Bool {self._etaS != nil}
+  public var hasEtaS: Bool {self._etaS != nil}
   /// Clears the value of `etaS`. Subsequent reads from it will return its default value.
-  mutating func clearEtaS() {self._etaS = nil}
+  public mutating func clearEtaS() {self._etaS = nil}
 
   /// Optional intermediate preview audio path for A/B compare
-  var previewAudioPath: String {
+  public var previewAudioPath: String {
     get {_previewAudioPath ?? String()}
     set {_previewAudioPath = newValue}
   }
   /// Returns true if `previewAudioPath` has been explicitly set.
-  var hasPreviewAudioPath: Bool {self._previewAudioPath != nil}
+  public var hasPreviewAudioPath: Bool {self._previewAudioPath != nil}
   /// Clears the value of `previewAudioPath`. Subsequent reads from it will return its default value.
-  mutating func clearPreviewAudioPath() {self._previewAudioPath = nil}
+  public mutating func clearPreviewAudioPath() {self._previewAudioPath = nil}
 
-  var unknownFields = SwiftProtobuf.UnknownStorage()
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  init() {}
+  public init() {}
 
   fileprivate var _percentComplete: Double? = nil
   fileprivate var _elapsedS: Double? = nil
@@ -442,17 +442,17 @@ nonisolated struct SangeetV1RestorationProgress: Sendable {
 }
 
 /// Stable identifier for cancelling or tracking a job
-nonisolated struct SangeetV1JobId: Sendable {
+public nonisolated struct SangeetV1JobId: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
   /// UUID representing the job
-  var jobID: String = String()
+  public var jobID: String = String()
 
-  var unknownFields = SwiftProtobuf.UnknownStorage()
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
 
-  init() {}
+  public init() {}
 }
 
 // MARK: - Code below here is support for the SwiftProtobuf runtime.
@@ -460,29 +460,29 @@ nonisolated struct SangeetV1JobId: Sendable {
 fileprivate nonisolated let _protobuf_package = "sangeet.v1"
 
 nonisolated extension SangeetV1Empty: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".Empty"
-  static let _protobuf_nameMap = SwiftProtobuf._NameMap()
+  public static let protoMessageName: String = _protobuf_package + ".Empty"
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap()
 
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     // Load everything into unknown fields
     while try decoder.nextFieldNumber() != nil {}
   }
 
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: SangeetV1Empty, rhs: SangeetV1Empty) -> Bool {
+  public static func ==(lhs: SangeetV1Empty, rhs: SangeetV1Empty) -> Bool {
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
 }
 
 nonisolated extension SangeetV1Capabilities: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".Capabilities"
-  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}daemon_version\0\u{3}supported_audio_formats\0\u{3}mps_available\0\u{3}requires_user_consent\0")
+  public static let protoMessageName: String = _protobuf_package + ".Capabilities"
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}daemon_version\0\u{3}supported_audio_formats\0\u{3}mps_available\0\u{3}requires_user_consent\0")
 
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
       // The use of inline closures is to circumvent an issue where the compiler
       // allocates stack space for every case branch when no optimizations are
@@ -497,7 +497,7 @@ nonisolated extension SangeetV1Capabilities: SwiftProtobuf.Message, SwiftProtobu
     }
   }
 
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     if !self.daemonVersion.isEmpty {
       try visitor.visitSingularStringField(value: self.daemonVersion, fieldNumber: 1)
     }
@@ -513,7 +513,7 @@ nonisolated extension SangeetV1Capabilities: SwiftProtobuf.Message, SwiftProtobu
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: SangeetV1Capabilities, rhs: SangeetV1Capabilities) -> Bool {
+  public static func ==(lhs: SangeetV1Capabilities, rhs: SangeetV1Capabilities) -> Bool {
     if lhs.daemonVersion != rhs.daemonVersion {return false}
     if lhs.supportedAudioFormats != rhs.supportedAudioFormats {return false}
     if lhs.mpsAvailable != rhs.mpsAvailable {return false}
@@ -524,10 +524,10 @@ nonisolated extension SangeetV1Capabilities: SwiftProtobuf.Message, SwiftProtobu
 }
 
 nonisolated extension SangeetV1Model: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".Model"
-  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}name\0\u{1}version\0\u{1}status\0\u{1}sha256\0")
+  public static let protoMessageName: String = _protobuf_package + ".Model"
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}name\0\u{1}version\0\u{1}status\0\u{1}sha256\0")
 
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
       // The use of inline closures is to circumvent an issue where the compiler
       // allocates stack space for every case branch when no optimizations are
@@ -542,7 +542,7 @@ nonisolated extension SangeetV1Model: SwiftProtobuf.Message, SwiftProtobuf._Mess
     }
   }
 
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     if !self.name.isEmpty {
       try visitor.visitSingularStringField(value: self.name, fieldNumber: 1)
     }
@@ -558,7 +558,7 @@ nonisolated extension SangeetV1Model: SwiftProtobuf.Message, SwiftProtobuf._Mess
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: SangeetV1Model, rhs: SangeetV1Model) -> Bool {
+  public static func ==(lhs: SangeetV1Model, rhs: SangeetV1Model) -> Bool {
     if lhs.name != rhs.name {return false}
     if lhs.version != rhs.version {return false}
     if lhs.status != rhs.status {return false}
@@ -569,10 +569,10 @@ nonisolated extension SangeetV1Model: SwiftProtobuf.Message, SwiftProtobuf._Mess
 }
 
 nonisolated extension SangeetV1ModelList: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".ModelList"
-  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}models\0")
+  public static let protoMessageName: String = _protobuf_package + ".ModelList"
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}models\0")
 
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
       // The use of inline closures is to circumvent an issue where the compiler
       // allocates stack space for every case branch when no optimizations are
@@ -584,14 +584,14 @@ nonisolated extension SangeetV1ModelList: SwiftProtobuf.Message, SwiftProtobuf._
     }
   }
 
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     if !self.models.isEmpty {
       try visitor.visitRepeatedMessageField(value: self.models, fieldNumber: 1)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: SangeetV1ModelList, rhs: SangeetV1ModelList) -> Bool {
+  public static func ==(lhs: SangeetV1ModelList, rhs: SangeetV1ModelList) -> Bool {
     if lhs.models != rhs.models {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
@@ -599,10 +599,10 @@ nonisolated extension SangeetV1ModelList: SwiftProtobuf.Message, SwiftProtobuf._
 }
 
 nonisolated extension SangeetV1PrepareRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".PrepareRequest"
-  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}model_names\0")
+  public static let protoMessageName: String = _protobuf_package + ".PrepareRequest"
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}model_names\0")
 
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
       // The use of inline closures is to circumvent an issue where the compiler
       // allocates stack space for every case branch when no optimizations are
@@ -614,14 +614,14 @@ nonisolated extension SangeetV1PrepareRequest: SwiftProtobuf.Message, SwiftProto
     }
   }
 
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     if !self.modelNames.isEmpty {
       try visitor.visitRepeatedStringField(value: self.modelNames, fieldNumber: 1)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: SangeetV1PrepareRequest, rhs: SangeetV1PrepareRequest) -> Bool {
+  public static func ==(lhs: SangeetV1PrepareRequest, rhs: SangeetV1PrepareRequest) -> Bool {
     if lhs.modelNames != rhs.modelNames {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
@@ -629,10 +629,10 @@ nonisolated extension SangeetV1PrepareRequest: SwiftProtobuf.Message, SwiftProto
 }
 
 nonisolated extension SangeetV1PrepareProgress: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".PrepareProgress"
-  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}model_name\0\u{3}percent_complete\0\u{1}status\0")
+  public static let protoMessageName: String = _protobuf_package + ".PrepareProgress"
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}model_name\0\u{3}percent_complete\0\u{1}status\0")
 
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
       // The use of inline closures is to circumvent an issue where the compiler
       // allocates stack space for every case branch when no optimizations are
@@ -646,7 +646,7 @@ nonisolated extension SangeetV1PrepareProgress: SwiftProtobuf.Message, SwiftProt
     }
   }
 
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     // The use of inline closures is to circumvent an issue where the compiler
     // allocates stack space for every if/case branch local when no optimizations
     // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
@@ -663,7 +663,7 @@ nonisolated extension SangeetV1PrepareProgress: SwiftProtobuf.Message, SwiftProt
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: SangeetV1PrepareProgress, rhs: SangeetV1PrepareProgress) -> Bool {
+  public static func ==(lhs: SangeetV1PrepareProgress, rhs: SangeetV1PrepareProgress) -> Bool {
     if lhs.modelName != rhs.modelName {return false}
     if lhs._percentComplete != rhs._percentComplete {return false}
     if lhs.status != rhs.status {return false}
@@ -673,10 +673,10 @@ nonisolated extension SangeetV1PrepareProgress: SwiftProtobuf.Message, SwiftProt
 }
 
 nonisolated extension SangeetV1AnalyzeRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".AnalyzeRequest"
-  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}input_path\0")
+  public static let protoMessageName: String = _protobuf_package + ".AnalyzeRequest"
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}input_path\0")
 
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
       // The use of inline closures is to circumvent an issue where the compiler
       // allocates stack space for every case branch when no optimizations are
@@ -688,14 +688,14 @@ nonisolated extension SangeetV1AnalyzeRequest: SwiftProtobuf.Message, SwiftProto
     }
   }
 
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     if !self.inputPath.isEmpty {
       try visitor.visitSingularStringField(value: self.inputPath, fieldNumber: 1)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: SangeetV1AnalyzeRequest, rhs: SangeetV1AnalyzeRequest) -> Bool {
+  public static func ==(lhs: SangeetV1AnalyzeRequest, rhs: SangeetV1AnalyzeRequest) -> Bool {
     if lhs.inputPath != rhs.inputPath {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
@@ -703,10 +703,10 @@ nonisolated extension SangeetV1AnalyzeRequest: SwiftProtobuf.Message, SwiftProto
 }
 
 nonisolated extension SangeetV1AudioFeatures: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".AudioFeatures"
-  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}sample_rate\0\u{1}channels\0\u{3}duration_s\0\u{3}snr_estimate_db\0\u{3}spectral_centroid_hz\0\u{3}hum_50hz_present\0\u{3}hum_60hz_present\0\u{3}clipping_rate\0\u{3}click_rate_per_s\0\u{3}hf_rolloff_hz\0\u{3}lufs_integrated\0")
+  public static let protoMessageName: String = _protobuf_package + ".AudioFeatures"
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}sample_rate\0\u{1}channels\0\u{3}duration_s\0\u{3}snr_estimate_db\0\u{3}spectral_centroid_hz\0\u{3}hum_50hz_present\0\u{3}hum_60hz_present\0\u{3}clipping_rate\0\u{3}click_rate_per_s\0\u{3}hf_rolloff_hz\0\u{3}lufs_integrated\0")
 
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
       // The use of inline closures is to circumvent an issue where the compiler
       // allocates stack space for every case branch when no optimizations are
@@ -728,7 +728,7 @@ nonisolated extension SangeetV1AudioFeatures: SwiftProtobuf.Message, SwiftProtob
     }
   }
 
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     // The use of inline closures is to circumvent an issue where the compiler
     // allocates stack space for every if/case branch local when no optimizations
     // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
@@ -769,7 +769,7 @@ nonisolated extension SangeetV1AudioFeatures: SwiftProtobuf.Message, SwiftProtob
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: SangeetV1AudioFeatures, rhs: SangeetV1AudioFeatures) -> Bool {
+  public static func ==(lhs: SangeetV1AudioFeatures, rhs: SangeetV1AudioFeatures) -> Bool {
     if lhs.sampleRate != rhs.sampleRate {return false}
     if lhs.channels != rhs.channels {return false}
     if lhs.durationS != rhs.durationS {return false}
@@ -787,10 +787,10 @@ nonisolated extension SangeetV1AudioFeatures: SwiftProtobuf.Message, SwiftProtob
 }
 
 nonisolated extension SangeetV1StageParams: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".StageParams"
-  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}params\0")
+  public static let protoMessageName: String = _protobuf_package + ".StageParams"
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}params\0")
 
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
       // The use of inline closures is to circumvent an issue where the compiler
       // allocates stack space for every case branch when no optimizations are
@@ -802,14 +802,14 @@ nonisolated extension SangeetV1StageParams: SwiftProtobuf.Message, SwiftProtobuf
     }
   }
 
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     if !self.params.isEmpty {
       try visitor.visitMapField(fieldType: SwiftProtobuf._ProtobufMap<SwiftProtobuf.ProtobufString,SwiftProtobuf.ProtobufDouble>.self, value: self.params, fieldNumber: 1)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: SangeetV1StageParams, rhs: SangeetV1StageParams) -> Bool {
+  public static func ==(lhs: SangeetV1StageParams, rhs: SangeetV1StageParams) -> Bool {
     if lhs.params != rhs.params {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
@@ -817,10 +817,10 @@ nonisolated extension SangeetV1StageParams: SwiftProtobuf.Message, SwiftProtobuf
 }
 
 nonisolated extension SangeetV1StageInvocation: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".StageInvocation"
-  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}stage_name\0\u{1}strength\0\u{1}params\0")
+  public static let protoMessageName: String = _protobuf_package + ".StageInvocation"
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}stage_name\0\u{1}strength\0\u{1}params\0")
 
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
       // The use of inline closures is to circumvent an issue where the compiler
       // allocates stack space for every case branch when no optimizations are
@@ -834,7 +834,7 @@ nonisolated extension SangeetV1StageInvocation: SwiftProtobuf.Message, SwiftProt
     }
   }
 
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     // The use of inline closures is to circumvent an issue where the compiler
     // allocates stack space for every if/case branch local when no optimizations
     // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
@@ -851,7 +851,7 @@ nonisolated extension SangeetV1StageInvocation: SwiftProtobuf.Message, SwiftProt
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: SangeetV1StageInvocation, rhs: SangeetV1StageInvocation) -> Bool {
+  public static func ==(lhs: SangeetV1StageInvocation, rhs: SangeetV1StageInvocation) -> Bool {
     if lhs.stageName != rhs.stageName {return false}
     if lhs._strength != rhs._strength {return false}
     if lhs._params != rhs._params {return false}
@@ -861,10 +861,10 @@ nonisolated extension SangeetV1StageInvocation: SwiftProtobuf.Message, SwiftProt
 }
 
 nonisolated extension SangeetV1RestorationRecipe: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".RestorationRecipe"
-  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}stages\0")
+  public static let protoMessageName: String = _protobuf_package + ".RestorationRecipe"
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}stages\0")
 
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
       // The use of inline closures is to circumvent an issue where the compiler
       // allocates stack space for every case branch when no optimizations are
@@ -876,14 +876,14 @@ nonisolated extension SangeetV1RestorationRecipe: SwiftProtobuf.Message, SwiftPr
     }
   }
 
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     if !self.stages.isEmpty {
       try visitor.visitRepeatedMessageField(value: self.stages, fieldNumber: 1)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: SangeetV1RestorationRecipe, rhs: SangeetV1RestorationRecipe) -> Bool {
+  public static func ==(lhs: SangeetV1RestorationRecipe, rhs: SangeetV1RestorationRecipe) -> Bool {
     if lhs.stages != rhs.stages {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
@@ -891,10 +891,10 @@ nonisolated extension SangeetV1RestorationRecipe: SwiftProtobuf.Message, SwiftPr
 }
 
 nonisolated extension SangeetV1AnalysisResult: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".AnalysisResult"
-  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}features\0\u{3}suggested_recipe\0")
+  public static let protoMessageName: String = _protobuf_package + ".AnalysisResult"
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}features\0\u{3}suggested_recipe\0")
 
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
       // The use of inline closures is to circumvent an issue where the compiler
       // allocates stack space for every case branch when no optimizations are
@@ -907,7 +907,7 @@ nonisolated extension SangeetV1AnalysisResult: SwiftProtobuf.Message, SwiftProto
     }
   }
 
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     // The use of inline closures is to circumvent an issue where the compiler
     // allocates stack space for every if/case branch local when no optimizations
     // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
@@ -921,7 +921,7 @@ nonisolated extension SangeetV1AnalysisResult: SwiftProtobuf.Message, SwiftProto
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: SangeetV1AnalysisResult, rhs: SangeetV1AnalysisResult) -> Bool {
+  public static func ==(lhs: SangeetV1AnalysisResult, rhs: SangeetV1AnalysisResult) -> Bool {
     if lhs._features != rhs._features {return false}
     if lhs._suggestedRecipe != rhs._suggestedRecipe {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
@@ -930,10 +930,10 @@ nonisolated extension SangeetV1AnalysisResult: SwiftProtobuf.Message, SwiftProto
 }
 
 nonisolated extension SangeetV1RestorationRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".RestorationRequest"
-  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}input_path\0\u{3}output_path\0\u{1}recipe\0\u{3}target_loudness_lufs\0\u{3}output_format\0")
+  public static let protoMessageName: String = _protobuf_package + ".RestorationRequest"
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}input_path\0\u{3}output_path\0\u{1}recipe\0\u{3}target_loudness_lufs\0\u{3}output_format\0")
 
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
       // The use of inline closures is to circumvent an issue where the compiler
       // allocates stack space for every case branch when no optimizations are
@@ -949,7 +949,7 @@ nonisolated extension SangeetV1RestorationRequest: SwiftProtobuf.Message, SwiftP
     }
   }
 
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     // The use of inline closures is to circumvent an issue where the compiler
     // allocates stack space for every if/case branch local when no optimizations
     // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
@@ -972,7 +972,7 @@ nonisolated extension SangeetV1RestorationRequest: SwiftProtobuf.Message, SwiftP
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: SangeetV1RestorationRequest, rhs: SangeetV1RestorationRequest) -> Bool {
+  public static func ==(lhs: SangeetV1RestorationRequest, rhs: SangeetV1RestorationRequest) -> Bool {
     if lhs.inputPath != rhs.inputPath {return false}
     if lhs.outputPath != rhs.outputPath {return false}
     if lhs._recipe != rhs._recipe {return false}
@@ -984,10 +984,10 @@ nonisolated extension SangeetV1RestorationRequest: SwiftProtobuf.Message, SwiftP
 }
 
 nonisolated extension SangeetV1RestorationProgress: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".RestorationProgress"
-  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}request_id\0\u{3}stage_name\0\u{3}percent_complete\0\u{3}elapsed_s\0\u{3}eta_s\0\u{3}preview_audio_path\0")
+  public static let protoMessageName: String = _protobuf_package + ".RestorationProgress"
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}request_id\0\u{3}stage_name\0\u{3}percent_complete\0\u{3}elapsed_s\0\u{3}eta_s\0\u{3}preview_audio_path\0")
 
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
       // The use of inline closures is to circumvent an issue where the compiler
       // allocates stack space for every case branch when no optimizations are
@@ -1004,7 +1004,7 @@ nonisolated extension SangeetV1RestorationProgress: SwiftProtobuf.Message, Swift
     }
   }
 
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     // The use of inline closures is to circumvent an issue where the compiler
     // allocates stack space for every if/case branch local when no optimizations
     // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
@@ -1030,7 +1030,7 @@ nonisolated extension SangeetV1RestorationProgress: SwiftProtobuf.Message, Swift
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: SangeetV1RestorationProgress, rhs: SangeetV1RestorationProgress) -> Bool {
+  public static func ==(lhs: SangeetV1RestorationProgress, rhs: SangeetV1RestorationProgress) -> Bool {
     if lhs.requestID != rhs.requestID {return false}
     if lhs.stageName != rhs.stageName {return false}
     if lhs._percentComplete != rhs._percentComplete {return false}
@@ -1043,10 +1043,10 @@ nonisolated extension SangeetV1RestorationProgress: SwiftProtobuf.Message, Swift
 }
 
 nonisolated extension SangeetV1JobId: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = _protobuf_package + ".JobId"
-  static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}job_id\0")
+  public static let protoMessageName: String = _protobuf_package + ".JobId"
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}job_id\0")
 
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
       // The use of inline closures is to circumvent an issue where the compiler
       // allocates stack space for every case branch when no optimizations are
@@ -1058,14 +1058,14 @@ nonisolated extension SangeetV1JobId: SwiftProtobuf.Message, SwiftProtobuf._Mess
     }
   }
 
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
     if !self.jobID.isEmpty {
       try visitor.visitSingularStringField(value: self.jobID, fieldNumber: 1)
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
-  static func ==(lhs: SangeetV1JobId, rhs: SangeetV1JobId) -> Bool {
+  public static func ==(lhs: SangeetV1JobId, rhs: SangeetV1JobId) -> Bool {
     if lhs.jobID != rhs.jobID {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true

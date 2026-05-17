@@ -1,0 +1,1 @@
+Placeholder resource to synthesize Bundle.module for AudioEngine target.
