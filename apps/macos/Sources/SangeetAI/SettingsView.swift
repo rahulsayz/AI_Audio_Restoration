@@ -7,12 +7,16 @@ public struct SettingsView: View {
         case general
         case audio
         case storage
+        case privacy
         case about
     }
     
     @State private var activeTab: Tab = .general
+    @ObservedObject var updaterViewModel: UpdaterViewModel
     
-    public init() {}
+    public init(updaterViewModel: UpdaterViewModel) {
+        self.updaterViewModel = updaterViewModel
+    }
     
     public var body: some View {
         TabView(selection: $activeTab) {
@@ -34,7 +38,13 @@ public struct SettingsView: View {
                 }
                 .tag(Tab.storage)
             
-            AboutSettingsView()
+            PrivacySettingsView()
+                .tabItem {
+                    Label("Privacy", systemImage: "lock.shield")
+                }
+                .tag(Tab.privacy)
+            
+            AboutSettingsView(updaterViewModel: updaterViewModel)
                 .tabItem {
                     Label("About", systemImage: "info.circle")
                 }
@@ -49,26 +59,61 @@ public struct SettingsView: View {
 struct GeneralSettingsView: View {
     @AppStorage("defaultMasteringPreset") private var defaultMasteringPreset = "streaming"
     
+    // Sparkle User Defaults Keys
+    @AppStorage("SUEnableAutomaticChecks") private var enableAutomaticChecks = true
+    @AppStorage("SUAutomaticallyUpdate") private var automaticallyUpdate = false
+    @AppStorage("SUScheduledCheckInterval") private var scheduledCheckInterval = 604800 // 1 week
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Text("Restoration & Mastering Settings")
-                .font(.headline)
-            
-            Picker("Default Mastering Preset", selection: $defaultMasteringPreset) {
-                Text("Standard Streaming (-14 LUFS, -1 dBTP)").tag("streaming")
-                Text("Modern Indian Remaster (-9 LUFS, -1 dBTP)").tag("remaster")
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Restoration & Mastering Settings")
+                        .font(.headline)
+                    
+                    Picker("Default Mastering Preset", selection: $defaultMasteringPreset) {
+                        Text("Standard Streaming (-14 LUFS, -1 dBTP)").tag("streaming")
+                        Text("Modern Indian Remaster (-9 LUFS, -1 dBTP)").tag("remaster")
+                    }
+                    .pickerStyle(.radioGroup)
+                    .help("Select the default mastering target applied when processing new tracks.")
+                    
+                    Text("Streaming is optimized for global digital distribution. Remaster is punchier and matches standard golden-era Indian music LP re-releases.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding(.leading, 20)
+                }
+                
+                Divider()
+                
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Application Updates")
+                        .font(.headline)
+                    
+                    Toggle("Check for updates automatically", isOn: $enableAutomaticChecks)
+                        .help("If enabled, Sangeet AI will periodically check our secure feed for new versions.")
+                    
+                    if enableAutomaticChecks {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Toggle("Automatically download updates", isOn: $automaticallyUpdate)
+                                .help("Default is off to preserve metered connections. Sangeet will notify you when a download is ready.")
+                                .padding(.leading, 20)
+                            
+                            Picker("Check Frequency", selection: $scheduledCheckInterval) {
+                                Text("Daily").tag(86400)
+                                Text("Weekly").tag(604800)
+                                Text("Monthly").tag(2628000)
+                            }
+                            .pickerStyle(.menu)
+                            .frame(width: 280)
+                            .padding(.leading, 20)
+                            .help("How often Sparkle checks for new updates.")
+                        }
+                    }
+                }
             }
-            .pickerStyle(.radioGroup)
-            .help("Select the default mastering target applied when processing new tracks.")
-            
-            Text("Streaming is optimized for global digital distribution. Remaster is punchier and matches standard golden-era Indian music LP re-releases.")
-                .font(.caption)
-                .foregroundColor(.secondary)
-                .padding(.leading, 20)
-            
-            Spacer()
+            .padding()
         }
-        .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }
@@ -226,6 +271,8 @@ struct StorageSettingsView: View {
 
 // MARK: - About Tab View
 struct AboutSettingsView: View {
+    @ObservedObject var updaterViewModel: UpdaterViewModel
+    
     var body: some View {
         VStack(spacing: 8) {
             Image(systemName: "music.note.house.fill")
@@ -240,6 +287,14 @@ struct AboutSettingsView: View {
             Text("Version 1.0.0 (Build 1)")
                 .font(.caption)
                 .foregroundColor(.secondary)
+            
+            Button("Check for Updates...") {
+                updaterViewModel.checkForUpdates()
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.orange)
+            .disabled(!updaterViewModel.canCheckForUpdates)
+            .padding(.vertical, 2)
             
             Text("Indian Music AI Restoration & Remastering Console")
                 .font(.caption2)
@@ -266,7 +321,7 @@ struct AboutSettingsView: View {
                     }
                     .padding(4)
                 }
-                .frame(height: 120)
+                .frame(height: 100)
                 .background(Color(NSColor.controlBackgroundColor))
                 .cornerRadius(4)
                 .border(Color(NSColor.separatorColor), width: 0.5)
@@ -315,3 +370,148 @@ struct ModelLicenseRow: View {
         .cornerRadius(4)
     }
 }
+
+// MARK: - Privacy Tab View
+struct PrivacySettingsView: View {
+    @AppStorage("SAITelemetryEnabled") private var isTelemetryEnabled = true
+    @ObservedObject var telemetryManager = TelemetryManager.shared
+    @State private var showViewer = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            Text("Privacy & Diagnostic Telemetry")
+                .font(.headline)
+            
+            VStack(alignment: .leading, spacing: 8) {
+                Toggle("Share anonymous telemetry data", isOn: $isTelemetryEnabled)
+                    .font(.body)
+                    .help("Help improve Sangeet by sharing diagnostics. We never collect audio files, names, or identifiers.")
+                
+                Text("Help improve Sangeet AI by automatically sharing diagnostic logs. Telemetry is opt-out by default, completely anonymous, and never transmits audio content, spectra, or personal identifiers. You can opt out at any time.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .lineSpacing(3)
+                    .padding(.leading, 18)
+            }
+            
+            Divider()
+            
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Transparency & Data Sovereignty")
+                    .font(.subheadline)
+                    .fontWeight(.bold)
+                
+                Text("We believe you should have complete visibility into what is collected. View the raw rolling diagnostic buffer currently stored in memory.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .lineSpacing(3)
+                
+                Button("See what's collected") {
+                    showViewer = true
+                }
+                .buttonStyle(.bordered)
+            }
+            
+            Spacer()
+        }
+        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .sheet(isPresented: $showViewer) {
+            TelemetryViewerSheet(isPresented: $showViewer, telemetryManager: telemetryManager)
+        }
+    }
+}
+
+// MARK: - Telemetry Viewer Sheet
+struct TelemetryViewerSheet: View {
+    @Binding var isPresented: Bool
+    @ObservedObject var telemetryManager: TelemetryManager
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            HStack {
+                Text("Diagnostic Telemetry Logs")
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                Spacer()
+                Button("Clear Logs") {
+                    telemetryManager.clearLocalHistory()
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+            }
+            .padding(.horizontal)
+            .padding(.top)
+            
+            Text("Below is the real-time queue of the last 20 events recorded during this session. Logging halts completely if sharing is disabled.")
+                .font(.caption2)
+                .foregroundColor(.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal)
+            
+            ScrollView {
+                if telemetryManager.localEventsBuffer.isEmpty {
+                    VStack(spacing: 8) {
+                        Image(systemName: "opticaldisc.fill")
+                            .font(.system(size: 20))
+                            .foregroundColor(.secondary)
+                        Text("No telemetry events recorded yet.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.vertical, 60)
+                    .frame(maxWidth: .infinity)
+                } else {
+                    LazyVStack(alignment: .leading, spacing: 8) {
+                        ForEach(telemetryManager.localEventsBuffer) { event in
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack {
+                                    Text(event.eventName)
+                                        .font(.system(.caption, design: .monospaced))
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.orange)
+                                    Spacer()
+                                    Text(event.formattedTimestamp)
+                                        .font(.system(size: 9, design: .monospaced))
+                                        .foregroundColor(.secondary)
+                                }
+                                
+                                if !event.properties.isEmpty {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        ForEach(event.properties.sorted(by: { $0.key < $1.key }), id: \.key) { key, value in
+                                            HStack(alignment: .top) {
+                                                Text("\(key):")
+                                                    .font(.system(size: 8, weight: .semibold, design: .monospaced))
+                                                    .foregroundColor(.secondary)
+                                                Text(value)
+                                                    .font(.system(size: 8, design: .monospaced))
+                                                    .foregroundColor(.primary)
+                                            }
+                                        }
+                                    }
+                                    .padding(.leading, 8)
+                                }
+                            }
+                            .padding(8)
+                            .background(Color(NSColor.controlBackgroundColor))
+                            .cornerRadius(6)
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+            }
+            .frame(height: 240)
+            
+            Divider()
+            
+            Button("Close") {
+                isPresented = false
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.orange)
+            .padding(.bottom)
+        }
+        .frame(width: 440)
+        .background(Color(NSColor.windowBackgroundColor))
+    }
+}
+

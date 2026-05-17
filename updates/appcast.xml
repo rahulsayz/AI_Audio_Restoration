@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Sangeet AI Updates</title>
+    <link>https://updates.sangeet.app/appcast.xml</link>
+    <description>Most recent updates for Sangeet AI (Native macOS AI Audio Restoration).</description>
+    <language>en</language>
+    
+    <!--
+      SANGEET AI SPARKLE APPCAST GUIDE:
+      
+      To add a new update item, generate its signature using the release-signing playbook:
+        /Users/rahulchaturvedi/AI_Audio_Restoration/docs/playbooks/release-signing.md
+        
+      Example signing command:
+        bin/sign_update SangeetAI-1.1.0.zip
+        
+      The command prints:
+        sparkle:edSignature="xxx" length="yyy"
+        
+      Pasted into a new <item> tag at the top of the feed:
+        <item>
+          <title>Version 1.1.0</title>
+          <description><![CDATA[
+            <ul>
+              <li>Improved DeepFilterNet 3 background inference speeds by 15%.</li>
+              <li>Added new De-Hum frequency presets for classical vocal protections.</li>
+            </ul>
+          ]]></description>
+          <pubDate>Mon, 18 May 2026 12:00:00 +0530</pubDate>
+          <sparkle:releaseNotesLink>https://updates.sangeet.app/release-notes/1.1.0.html</sparkle:releaseNotesLink>
+          <enclosure 
+            url="https://updates.sangeet.app/builds/SangeetAI-1.1.0.zip" 
+            sparkle:version="1.1.0" 
+            sparkle:shortVersionString="1.1.0" 
+            sparkle:os="macos"
+            sparkle:edSignature="[signature]" 
+            length="[file_size]" 
+            type="application/octet-stream" 
+          />
+        </item>
+    -->
+    
+    <item>
+      <title>Version 1.1.0</title>
+      <description><![CDATA[
+        <ul>
+          <li>Improved DeepFilterNet 3 background inference speeds by 15%.</li>
+          <li>Added new De-Hum frequency presets for classical vocal protections.</li>
+        </ul>
+      ]]></description>
+      <pubDate>Mon, 18 May 2026 12:00:00 +0530</pubDate>
+      <sparkle:releaseNotesLink>https://updates.sangeet.app/release-notes/template.html</sparkle:releaseNotesLink>
+      <enclosure 
+        url="https://updates.sangeet.app/builds/SangeetAI-1.1.0.zip" 
+        sparkle:version="1.1.0" 
+        sparkle:shortVersionString="1.1.0" 
+        sparkle:os="macos"
+        sparkle:edSignature="BxyLXKvOfd5q/BhtyB+rQB/fhWpNQ0tKp7aWoxwQEgMRk5md2SnrsauZHcXTMC7PK0wQsONhres8Z2Y/Cq+9Cg==" 
+        length="0" 
+        type="application/octet-stream" 
+      />
+    </item>
+    
+  </channel>
+</rss>

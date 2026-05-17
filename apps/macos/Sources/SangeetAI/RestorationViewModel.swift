@@ -114,6 +114,10 @@ public final class RestorationViewModel: ObservableObject {
         let targetPreset: MasteringChain.Preset = defaultPresetString == "remaster" ? .remaster : .streaming
         if self.selectedPreset != targetPreset {
             self.selectedPreset = targetPreset
+            TelemetryManager.shared.track(event: "settings_changed", properties: [
+                "setting": "defaultMasteringPreset",
+                "value": defaultPresetString
+            ])
         }
     }
     
@@ -270,6 +274,22 @@ public final class RestorationViewModel: ObservableObject {
             recipe = defaultRecipe
         }
         
+        // Capture telemetry parameters and start time
+        let startTime = Date()
+        let format = inputURL.pathExtension.lowercased()
+        let durationVal = self.durationString
+        let presetName = self.selectedPreset == .streaming ? "streaming" : "remaster"
+        let stageNames = recipe.stages.map { $0.stageName }.joined(separator: ",")
+        let strengths = recipe.stages.map { String(format: "%.2f", $0.strength) }.joined(separator: ",")
+        
+        TelemetryManager.shared.track(event: "restoration_started", properties: [
+            "format": format,
+            "duration": durationVal,
+            "preset": presetName,
+            "stages": stageNames,
+            "strengths": strengths
+        ])
+        
         restorationTask = Task {
             do {
                 // Ensure coordinator is prepared (launches daemon internally)
@@ -301,10 +321,31 @@ public final class RestorationViewModel: ObservableObject {
                 self.restorationComplete = true
                 self.isProcessing = false
                 
+                // Track successful completion with wall-clock timing and integrated LUFS/peak stats
+                let durationMs = Int(Date().timeIntervalSince(startTime) * 1000)
+                TelemetryManager.shared.track(event: "restoration_completed", properties: [
+                    "format": format,
+                    "duration": durationVal,
+                    "preset": presetName,
+                    "processing_time_ms": "\(durationMs)",
+                    "measured_lufs": String(format: "%.2f", self.measuredLUFS ?? 0.0),
+                    "measured_true_peak": String(format: "%.2f", self.measuredTruePeak ?? 0.0)
+                ])
+                
                 // Persist completed restoration to library database
                 self.saveCurrentToLibrary()
                 self.setupPlayer()
             } catch {
+                // Track failure event with description
+                let durationMs = Int(Date().timeIntervalSince(startTime) * 1000)
+                TelemetryManager.shared.track(event: "restoration_failed", properties: [
+                    "format": format,
+                    "duration": durationVal,
+                    "preset": presetName,
+                    "processing_time_ms": "\(durationMs)",
+                    "error": error.localizedDescription
+                ])
+                
                 // User-friendly error message format
                 self.errorMessage = "Sangeet couldn't complete the restoration. There was an internal issue communicating with the background daemon: \(error.localizedDescription). You can try restarting Sangeet or checking your environment variables."
                 self.isProcessing = false
@@ -528,9 +569,11 @@ public final class RestorationViewModel: ObservableObject {
         if player.isPlaying {
             player.pause()
             playerIsPlaying = false
+            TelemetryManager.shared.track(event: "toggle_playback", properties: ["state": "paused"])
         } else {
             player.play()
             playerIsPlaying = true
+            TelemetryManager.shared.track(event: "toggle_playback", properties: ["state": "playing"])
         }
     }
     
@@ -539,6 +582,7 @@ public final class RestorationViewModel: ObservableObject {
         let newActive = !player.isOriginalActive
         player.setOriginalActive(newActive)
         playerOriginalActive = newActive
+        TelemetryManager.shared.track(event: "toggle_audio_source", properties: ["active_source": newActive ? "original" : "restored"])
     }
     
     public func toggleVolumeMatch() {
@@ -546,6 +590,7 @@ public final class RestorationViewModel: ObservableObject {
         let newMatch = !player.isVolumeMatchEnabled
         player.setVolumeMatchEnabled(newMatch)
         playerVolumeMatchActive = newMatch
+        TelemetryManager.shared.track(event: "toggle_volume_match", properties: ["enabled": newMatch ? "true" : "false"])
     }
     
     public func toggleLoop() {
@@ -553,6 +598,7 @@ public final class RestorationViewModel: ObservableObject {
         let newLoop = !player.isLoopEnabled
         player.setLoopEnabled(newLoop)
         playerLoopActive = newLoop
+        TelemetryManager.shared.track(event: "toggle_loop", properties: ["enabled": newLoop ? "true" : "false"])
     }
     
     public func seekPlayer(toPercent percent: Double) {

@@ -142,4 +142,73 @@ final class SangeetAITests: XCTestCase {
             newViewModel.deleteEntry(id: entryId)
         }
     }
+    
+    func test_telemetryManager_consentDefaultsAndToggle() {
+        let manager = TelemetryManager.shared
+        
+        // Reset defaults
+        UserDefaults.standard.removeObject(forKey: "SAITelemetryEnabled")
+        UserDefaults.standard.removeObject(forKey: "SAITelemetryConsentShown")
+        
+        XCTAssertTrue(manager.isTelemetryEnabled) // defaults to true
+        XCTAssertFalse(manager.isConsentShown)
+        
+        // Disable
+        manager.setTelemetryEnabled(false)
+        XCTAssertFalse(manager.isTelemetryEnabled)
+        
+        // Toggle consent shown
+        manager.setConsentShown(true)
+        XCTAssertTrue(manager.isConsentShown)
+        
+        // Re-enable
+        manager.setTelemetryEnabled(true)
+        XCTAssertTrue(manager.isTelemetryEnabled)
+    }
+    
+    func test_telemetryManager_eventsRollingBuffer() {
+        let manager = TelemetryManager.shared
+        manager.setTelemetryEnabled(true)
+        manager.clearHistory()
+        XCTAssertEqual(manager.recentEvents.count, 0)
+        
+        // Track 25 events, rolling cache must cap at 20
+        for i in 1...25 {
+            manager.track(event: "test_event_\(i)", properties: ["index": "\(i)"])
+        }
+        
+        // Since tracking is asynchronous on the serial queue, we wait a tiny moment for processing
+        let expectation = XCTestExpectation(description: "Wait for serial queue to process events")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 1.0)
+        
+        XCTAssertEqual(manager.recentEvents.count, 20)
+        // Check that the last event in the buffer is test_event_25 (most recent at the top)
+        XCTAssertEqual(manager.recentEvents.first?.name, "test_event_25")
+        // Check that the oldest event in the buffer is test_event_6
+        XCTAssertEqual(manager.recentEvents.last?.name, "test_event_6")
+        
+        // Clear history
+        manager.clearHistory()
+        XCTAssertEqual(manager.recentEvents.count, 0)
+    }
+    
+    func test_telemetryManager_whenDisabled_doesNotRecordEvents() {
+        let manager = TelemetryManager.shared
+        manager.setTelemetryEnabled(false)
+        manager.clearHistory()
+        
+        manager.track(event: "disabled_test", properties: [:])
+        
+        let expectation = XCTestExpectation(description: "Wait for serial queue")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            expectation.fulfill()
+        }
+        wait(for: [expectation], timeout: 1.0)
+        
+        XCTAssertEqual(manager.recentEvents.count, 0)
+    }
 }
