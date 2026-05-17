@@ -147,6 +147,28 @@ struct ComparePlayerView: View {
                             )
                         }
                         .buttonStyle(.plain)
+                        
+                        // Continuous Looping Toggle Button
+                        Button(action: { viewModel.toggleLoop() }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: viewModel.playerLoopActive ? "repeat.1" : "repeat")
+                                Text("LOOP")
+                                    .font(.system(size: 10, weight: .bold, design: .rounded))
+                            }
+                            .font(.system(size: 11))
+                            .foregroundStyle(viewModel.playerLoopActive ? RestorationTheme.saffron : RestorationTheme.subtleText)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 8)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .fill(viewModel.playerLoopActive ? RestorationTheme.saffron.opacity(0.1) : Color.white.opacity(0.04))
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14)
+                                    .stroke(viewModel.playerLoopActive ? RestorationTheme.saffron.opacity(0.3) : Color.white.opacity(0.08), lineWidth: 1)
+                            )
+                        }
+                        .buttonStyle(.plain)
                     }
                     .padding(.top, 4)
                 }

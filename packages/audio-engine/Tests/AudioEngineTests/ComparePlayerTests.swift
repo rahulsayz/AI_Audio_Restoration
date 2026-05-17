@@ -82,4 +82,25 @@ final class ComparePlayerTests: XCTestCase {
         
         player.stop()
     }
+    
+    func testPlayerLoopingState() async throws {
+        let originalURL = try generateSineFile(amplitude: 0.5)
+        let restoredURL = try generateSineFile(amplitude: 0.5)
+        
+        let player = SynchronizedAudioPlayer()
+        try await player.prepare(originalURL: originalURL, restoredURL: restoredURL, restoredLUFS: -14.0)
+        
+        // Looping should be disabled by default
+        XCTAssertFalse(player.isLoopEnabled)
+        
+        // Enabling looping should update state correctly
+        player.setLoopEnabled(true)
+        XCTAssertTrue(player.isLoopEnabled)
+        
+        // Disabling looping should update state correctly
+        player.setLoopEnabled(false)
+        XCTAssertFalse(player.isLoopEnabled)
+        
+        player.stop()
+    }
 }

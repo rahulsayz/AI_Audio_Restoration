@@ -46,6 +46,7 @@ public final class RestorationViewModel: ObservableObject {
     @Published public var originalAmplitudes: [Float] = []
     @Published public var restoredAmplitudes: [Float] = []
     @Published public var playerSpectrum: [Float] = Array(repeating: 0.0, count: 30)
+    @Published public var playerLoopActive: Bool = false
     
     private var player: SynchronizedAudioPlayer? = nil
     private var database: LibraryDatabase? = nil
@@ -472,6 +473,7 @@ public final class RestorationViewModel: ObservableObject {
         originalAmplitudes = []
         restoredAmplitudes = []
         playerSpectrum = Array(repeating: 0.0, count: 30)
+        playerLoopActive = false
     }
     
     public func togglePlayback() {
@@ -497,6 +499,13 @@ public final class RestorationViewModel: ObservableObject {
         let newMatch = !player.isVolumeMatchEnabled
         player.setVolumeMatchEnabled(newMatch)
         playerVolumeMatchActive = newMatch
+    }
+    
+    public func toggleLoop() {
+        guard let player = player else { return }
+        let newLoop = !player.isLoopEnabled
+        player.setLoopEnabled(newLoop)
+        playerLoopActive = newLoop
     }
     
     public func seekPlayer(toPercent percent: Double) {

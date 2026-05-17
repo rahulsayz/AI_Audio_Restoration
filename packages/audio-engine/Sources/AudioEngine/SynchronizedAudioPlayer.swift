@@ -13,6 +13,7 @@ public final class SynchronizedAudioPlayer {
     public private(set) var isPlaying = false
     public private(set) var isOriginalActive = false
     public private(set) var isVolumeMatchEnabled = false
+    public private(set) var isLoopEnabled = false
     
     public private(set) var originalLUFS: Double = -14.0
     public private(set) var restoredLUFS: Double = -14.0
@@ -208,6 +209,11 @@ public final class SynchronizedAudioPlayer {
         }
     }
     
+    /// Enables or disables continuous audio looping.
+    public func setLoopEnabled(_ enabled: Bool) {
+        self.isLoopEnabled = enabled
+    }
+    
     /// Seeks playback to a specific percentage.
     public func seek(toPercent percent: Double) {
         guard let origFile = originalFile else { return }
@@ -254,6 +260,17 @@ public final class SynchronizedAudioPlayer {
         let sampleRate = origFile.processingFormat.sampleRate
         let totalDuration = Double(origFile.length) / sampleRate
         let currentTime = Double(playerSeconds.sampleTime) / sampleRate
+        
+        if currentTime >= totalDuration - 0.05 {
+            if isLoopEnabled {
+                seek(toPercent: 0.0)
+                play()
+            } else {
+                pause()
+                seek(toPercent: 0.0)
+            }
+            return
+        }
         
         onTimeUpdate?(currentTime, totalDuration)
     }
