@@ -15,25 +15,42 @@ public struct RestorationView: View {
             // Elegant ambient organic soundwave background
             SoundwaveBackground()
             
-            VStack(spacing: 24) {
-                // Header Brand Section
-                headerSection
+            HStack(spacing: 0) {
+                // Left Panel: Scrollable Project Library Sidebar
+                sidebarSection
                 
-                // Content Card Area
-                mainContentSection
+                // Vertical Glass Divider
+                Rectangle()
+                    .fill(RestorationTheme.glassBorder)
+                    .frame(width: 1)
+                    .frame(maxHeight: .infinity)
                 
-                // Active Operations / Progress / Action Button Section
-                actionsSection
-                
-                // Custom User-Facing Error Notification Banner
-                if let errorMessage = viewModel.errorMessage {
-                    errorBanner(message: errorMessage)
+                // Right Panel: Main Restoration Workflow
+                VStack(spacing: 20) {
+                    // Header Brand Section
+                    headerSection
+                    
+                    // Content Card Area
+                    mainContentSection
+                    
+                    // Active Operations / Progress / Action Button Section
+                    actionsSection
+                    
+                    // Custom User-Facing Error Notification Banner
+                    if let errorMessage = viewModel.errorMessage {
+                        errorBanner(message: errorMessage)
+                    }
                 }
+                .padding(.horizontal, 30)
+                .padding(.vertical, 24)
+                .frame(width: 540, height: 600)
             }
-            .padding(40)
             .frame(width: 800, height: 600)
         }
         .preferredColorScheme(.dark)
+        .onAppear {
+            viewModel.loadLibrary()
+        }
     }
     
     // MARK: - Subviews
@@ -64,7 +81,12 @@ public struct RestorationView: View {
             } else {
                 fileDetailsCard
                 
-                analysisSection
+                if viewModel.restorationComplete {
+                    ComparePlayerView(viewModel: viewModel)
+                        .transition(.opacity.combined(with: .scale(scale: 0.98)))
+                } else {
+                    analysisSection
+                }
             }
         }
     }
@@ -345,26 +367,42 @@ public struct RestorationView: View {
                     .foregroundStyle(RestorationTheme.subtleText)
             }
         }
-        .frame(height: 100)
+        .frame(height: 120)
     }
     
     private var idleStateView: some View {
-        Button(action: {
-            withAnimation {
-                viewModel.startRestoration()
+        VStack(spacing: 16) {
+            HStack(spacing: 12) {
+                Text("Mastering Preset:")
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .foregroundStyle(RestorationTheme.subtleText)
+                
+                Picker("Preset Selection", selection: $viewModel.selectedPreset) {
+                    Text("Streaming (-14 LUFS)").tag(MasteringChain.Preset.streaming)
+                    Text("Remaster (-9 LUFS)").tag(MasteringChain.Preset.remaster)
+                }
+                .pickerStyle(.segmented)
+                .labelsHidden()
+                .frame(width: 300)
             }
-        }) {
-            Text("Restore Audio")
-                .font(.system(size: 15, weight: .semibold, design: .rounded))
-                .foregroundStyle(Color.black)
-                .frame(width: 200, height: 44)
-                .background(
-                    RoundedRectangle(cornerRadius: 22)
-                        .fill(RestorationTheme.saffron)
-                )
-                .shadow(color: RestorationTheme.saffron.opacity(0.3), radius: 8, x: 0, y: 4)
+            
+            Button(action: {
+                withAnimation {
+                    viewModel.startRestoration()
+                }
+            }) {
+                Text("Restore Audio")
+                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                    .foregroundStyle(Color.black)
+                    .frame(width: 200, height: 44)
+                    .background(
+                        RoundedRectangle(cornerRadius: 22)
+                            .fill(RestorationTheme.saffron)
+                    )
+                    .shadow(color: RestorationTheme.saffron.opacity(0.3), radius: 8, x: 0, y: 4)
+            }
+            .buttonStyle(.plain)
         }
-        .buttonStyle(.plain)
     }
     
     private var processingStateView: some View {
@@ -411,32 +449,73 @@ public struct RestorationView: View {
     }
     
     private var completionStateView: some View {
-        HStack(spacing: 16) {
-            HStack(spacing: 8) {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 20))
-                    .foregroundStyle(RestorationTheme.neonTeal)
+        VStack(spacing: 12) {
+            HStack(spacing: 16) {
+                HStack(spacing: 8) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 20))
+                        .foregroundStyle(RestorationTheme.neonTeal)
+                    
+                    Text("Restoration successfully completed!")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundStyle(.white)
+                }
                 
-                Text("Restoration successfully completed!")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundStyle(.white)
+                Button(action: { viewModel.showInFinder() }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "folder.fill")
+                        Text("Show in Finder")
+                    }
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Color.black)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(RestorationTheme.neonTeal)
+                    )
+                }
+                .buttonStyle(.plain)
             }
             
-            Button(action: { viewModel.showInFinder() }) {
-                HStack(spacing: 6) {
-                    Image(systemName: "folder.fill")
-                    Text("Show in Finder")
+            if let lufs = viewModel.measuredLUFS, let tp = viewModel.measuredTruePeak {
+                HStack(spacing: 20) {
+                    HStack(spacing: 6) {
+                        Text("LOUDNESS:")
+                            .font(.system(size: 9, weight: .bold, design: .rounded))
+                            .foregroundStyle(RestorationTheme.subtleText)
+                        Text(String(format: "%.1f LUFS", lufs))
+                            .font(.system(size: 12, weight: .bold, design: .monospaced))
+                            .foregroundStyle(RestorationTheme.neonTeal)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(Color.white.opacity(0.04))
+                    .cornerRadius(6)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(RestorationTheme.glassBorder, lineWidth: 1)
+                    )
+                    
+                    HStack(spacing: 6) {
+                        Text("TRUE PEAK:")
+                            .font(.system(size: 9, weight: .bold, design: .rounded))
+                            .foregroundStyle(RestorationTheme.subtleText)
+                        Text(String(format: "%.2f dBTP", tp))
+                            .font(.system(size: 12, weight: .bold, design: .monospaced))
+                            .foregroundStyle(tp > -1.05 ? RestorationTheme.neonTeal : .yellow)
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(Color.white.opacity(0.04))
+                    .cornerRadius(6)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 6)
+                            .stroke(RestorationTheme.glassBorder, lineWidth: 1)
+                    )
                 }
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(Color.black)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(RestorationTheme.neonTeal)
-                )
+                .transition(.opacity.combined(with: .scale(scale: 0.95)))
             }
-            .buttonStyle(.plain)
         }
     }
     
@@ -469,6 +548,174 @@ public struct RestorationView: View {
         )
         .transition(.move(edge: .bottom).combined(with: .opacity))
     }
+    
+    // MARK: - Sidebar List Views
+    
+    private var sidebarSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            // Header Title
+            VStack(alignment: .leading, spacing: 4) {
+                Text("PROJECT LIBRARY")
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .tracking(3)
+                    .foregroundStyle(RestorationTheme.saffron)
+                
+                Text("Past Restorations")
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundStyle(RestorationTheme.subtleText)
+            }
+            .padding(.top, 24)
+            .padding(.horizontal, 16)
+            
+            Divider()
+                .background(RestorationTheme.glassBorder)
+                .padding(.horizontal, 16)
+            
+            if viewModel.libraryEntries.isEmpty {
+                // Sleek Empty State
+                VStack(spacing: 12) {
+                    Image(systemName: "folder.badge.minus")
+                        .font(.system(size: 28))
+                        .foregroundStyle(RestorationTheme.subtleText)
+                    Text("No past restorations yet")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(RestorationTheme.subtleText)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(.bottom, 60)
+            } else {
+                // Scrollable restoration history
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(spacing: 10) {
+                        ForEach(viewModel.libraryEntries, id: \.id) { entry in
+                            libraryRow(entry: entry)
+                        }
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 24)
+                }
+            }
+        }
+        .frame(width: 260, height: 600, alignment: .topLeading)
+        .background(
+            Color.black.opacity(0.15)
+                .ignoresSafeArea()
+        )
+    }
+    
+    private func libraryRow(entry: LibraryEntry) -> some View {
+        let isSelected = viewModel.selectedEntryID == entry.id
+        let originalURL = URL(fileURLWithPath: entry.originalPath)
+        let fileExists = FileManager.default.fileExists(atPath: originalURL.path)
+        let isOrphaned = !fileExists
+        
+        return Button(action: {
+            if !isOrphaned {
+                withAnimation {
+                    viewModel.selectEntry(entry)
+                }
+            }
+        }) {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(alignment: .top) {
+                    // Left Column: Metadata
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(entry.filename)
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(isOrphaned ? RestorationTheme.subtleText : .white)
+                            .lineLimit(1)
+                        
+                        HStack(spacing: 8) {
+                            Text(entry.durationString)
+                                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                                .foregroundStyle(RestorationTheme.subtleText)
+                            
+                            Circle()
+                                .fill(RestorationTheme.subtleText.opacity(0.5))
+                                .frame(width: 3, height: 3)
+                            
+                            Text(formatDate(entry.restorationDate))
+                                .font(.system(size: 10))
+                                .foregroundStyle(RestorationTheme.subtleText)
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    // Right Column: Delete
+                    Button(action: {
+                        withAnimation {
+                            viewModel.deleteEntry(id: entry.id)
+                        }
+                    }) {
+                        Image(systemName: "trash.fill")
+                            .font(.system(size: 10))
+                            .foregroundStyle(Color.red.opacity(0.7))
+                            .padding(6)
+                            .background(Color.red.opacity(0.1))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+                    .help("Delete past restoration entry")
+                }
+                
+                // Soundwave thumbnail
+                HStack {
+                    if let amplitudes = try? JSONDecoder().decode([Float].self, from: entry.waveformPointsData) {
+                        ThumbnailWaveformView(
+                            amplitudes: amplitudes,
+                            color: entry.preset == "streaming" ? RestorationTheme.neonTeal : RestorationTheme.saffron
+                        )
+                        .opacity(isOrphaned ? 0.3 : 1.0)
+                    }
+                    
+                    Spacer()
+                    
+                    // Preset Badge
+                    Text(entry.preset.uppercased())
+                        .font(.system(size: 8, weight: .bold, design: .rounded))
+                        .tracking(1)
+                        .foregroundStyle(entry.preset == "streaming" ? RestorationTheme.neonTeal : RestorationTheme.saffron)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(
+                            (entry.preset == "streaming" ? RestorationTheme.neonTeal : RestorationTheme.saffron).opacity(0.08)
+                        )
+                        .cornerRadius(3)
+                }
+                
+                // Missing warning
+                if isOrphaned {
+                    HStack(spacing: 4) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.system(size: 8))
+                        Text("File Moved / Not Found")
+                    }
+                    .font(.system(size: 9, weight: .medium))
+                    .foregroundStyle(Color.orange.opacity(0.8))
+                    .padding(.top, 2)
+                }
+            }
+            .padding(12)
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(isSelected ? Color.white.opacity(0.04) : Color.white.opacity(0.01))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(isSelected ? RestorationTheme.saffron.opacity(0.3) : RestorationTheme.glassBorder, lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(isOrphaned)
+        .opacity(isOrphaned ? 0.6 : 1.0)
+    }
+    
+    private func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd MMM, HH:mm"
+        return formatter.string(from: date)
+    }
 }
 
 // MARK: - SwiftUI Previews
@@ -480,18 +727,44 @@ public struct RestorationView: View {
 
 #Preview("Loaded State") {
     let mockVM = RestorationViewModel()
-    mockVM.loadFile(url: URL(fileURLWithPath: "/Users/mock/Downloads/lata_mangeshkar_1952.mp3"))
+    
+    var analysis = SangeetV1AnalysisResult()
+    analysis.features.sampleRate = 44100
+    analysis.features.channels = 2
+    analysis.features.durationS = 212.0
+    analysis.features.snrEstimateDb = 24.5
+    analysis.features.hum50HzPresent = true
+    analysis.features.clickRatePerS = 1.2
+    analysis.features.hfRolloffHz = 5500.0
+    
+    var recipe = SangeetV1RestorationRecipe()
+    var stage1 = SangeetV1StageInvocation()
+    stage1.stageName = "deep_filter_net"
+    stage1.strength = 0.4
+    var stage2 = SangeetV1StageInvocation()
+    stage2.stageName = "declick"
+    stage2.strength = 0.6
+    recipe.stages = [stage1, stage2]
+    analysis.suggestedRecipe = recipe
+    
+    mockVM.injectMockStateForPreview(
+        filename: "lata_mangeshkar_1952.mp3",
+        sampleRate: "44.1 kHz",
+        duration: "3:32",
+        analysisResult: analysis
+    )
     return RestorationView(viewModel: mockVM)
 }
 
 #Preview("Processing State") {
     let mockVM = RestorationViewModel()
-    mockVM.loadFile(url: URL(fileURLWithPath: "/Users/mock/Downloads/lata_mangeshkar_1952.mp3"))
-    // Direct state injection for previewing processing
-    let vm = mockVM
-    Task { @MainActor in
-        // Set processing values on preview viewModel
-        vm.startRestoration()
-    }
+    mockVM.injectMockStateForPreview(
+        filename: "lata_mangeshkar_1952.mp3",
+        sampleRate: "44.1 kHz",
+        duration: "3:32",
+        isProcessing: true,
+        progress: 0.47,
+        currentStage: "Removing Broadband Noise..."
+    )
     return RestorationView(viewModel: mockVM)
 }
