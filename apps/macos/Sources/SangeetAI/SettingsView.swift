@@ -8,6 +8,9 @@ public struct SettingsView: View {
         case audio
         case storage
         case privacy
+        #if BETA
+        case feedback
+        #endif
         case about
     }
     
@@ -43,6 +46,14 @@ public struct SettingsView: View {
                     Label("Privacy", systemImage: "lock.shield")
                 }
                 .tag(Tab.privacy)
+            
+            #if BETA
+            FeedbackSettingsView()
+                .tabItem {
+                    Label("Feedback", systemImage: "envelope.badge")
+                }
+                .tag(Tab.feedback)
+            #endif
             
             AboutSettingsView(updaterViewModel: updaterViewModel)
                 .tabItem {
@@ -284,9 +295,15 @@ struct AboutSettingsView: View {
             Text("Sangeet AI")
                 .font(.system(size: 18, weight: .bold, design: .rounded))
             
+            #if BETA
+            Text("Version 1.0.0 Beta (Build 1)")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            #else
             Text("Version 1.0.0 (Build 1)")
                 .font(.caption)
                 .foregroundColor(.secondary)
+            #endif
             
             Button("Check for Updates...") {
                 updaterViewModel.checkForUpdates()
@@ -514,4 +531,244 @@ struct TelemetryViewerSheet: View {
         .background(Color(NSColor.windowBackgroundColor))
     }
 }
+
+#if BETA
+struct FeedbackSettingsView: View {
+    @State private var name: String = ""
+    @State private var email: String = ""
+    @State private var category: String = "Bug Report"
+    @State private var subject: String = ""
+    @State private var message: String = ""
+    @State private var includeDiagnostics: Bool = true
+    
+    @State private var isSubmitting: Bool = false
+    @State private var submissionStatus: SubmissionStatus = .idle
+    
+    private let categories = ["Bug Report", "Audio Quality", "Feature Request", "Other"]
+    
+    enum SubmissionStatus: Equatable {
+        case idle
+        case success
+        case failure(String)
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Beta Feedback")
+                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .foregroundColor(RestorationTheme.saffron)
+            
+            Text("Your feedback is emailed straight to beta@sangeet.app. Sangeet preserves authentic Indian acoustic traits—let us know how our models handle vocal nasality or microtonal pitch slides.")
+                .font(.system(size: 11))
+                .foregroundColor(.secondary)
+                .lineLimit(nil)
+            
+            if submissionStatus == .success {
+                VStack(spacing: 12) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 32))
+                        .foregroundColor(RestorationTheme.neonTeal)
+                    
+                    Text("Thank you for your feedback!")
+                        .font(.system(size: 14, weight: .bold))
+                    
+                    Text("Our engineers are on it. Your contribution helps preserve Indian musical heritage.")
+                        .font(.system(size: 11))
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                    
+                    Button("Send Another Message") {
+                        resetForm()
+                    }
+                    .buttonStyle(.bordered)
+                    .tint(.orange)
+                    .padding(.top, 8)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding()
+            } else {
+                Form {
+                    Section {
+                        HStack {
+                            Text("Name:")
+                                .font(.system(size: 11, weight: .bold))
+                                .frame(width: 60, alignment: .leading)
+                            TextField("Your name", text: $name)
+                                .textFieldStyle(.plain)
+                                .font(.system(size: 11))
+                        }
+                        
+                        HStack {
+                            Text("Email:")
+                                .font(.system(size: 11, weight: .bold))
+                                .frame(width: 60, alignment: .leading)
+                            TextField("your.email@example.com", text: $email)
+                                .textFieldStyle(.plain)
+                                .font(.system(size: 11))
+                        }
+                        
+                        Picker(selection: $category, label: Text("Topic:").font(.system(size: 11, weight: .bold)).frame(width: 60, alignment: .leading)) {
+                            ForEach(categories, id: \.self) { cat in
+                                Text(cat).tag(cat).font(.system(size: 11))
+                            }
+                        }
+                        .pickerStyle(.menu)
+                        
+                        HStack {
+                            Text("Subject:")
+                                .font(.system(size: 11, weight: .bold))
+                                .frame(width: 60, alignment: .leading)
+                            TextField("Brief summary", text: $subject)
+                                .textFieldStyle(.plain)
+                                .font(.system(size: 11))
+                        }
+                    }
+                    
+                    Section {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Message:")
+                                .font(.system(size: 11, weight: .bold))
+                            TextEditor(text: $message)
+                                .font(.system(size: 11))
+                                .frame(height: 80)
+                                .cornerRadius(4)
+                        }
+                    }
+                    
+                    Section {
+                        Toggle(isOn: $includeDiagnostics) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Include system diagnostics")
+                                    .font(.system(size: 10, weight: .semibold))
+                                Text("App version, macOS build, and machine specifications.")
+                                    .font(.system(size: 8))
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        .toggleStyle(.checkbox)
+                    }
+                }
+                .formStyle(.grouped)
+                .frame(height: 250)
+                
+                HStack {
+                    if case .failure(let error) = submissionStatus {
+                        Text(error)
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundColor(.red)
+                            .lineLimit(1)
+                    }
+                    
+                    Spacer()
+                    
+                    if isSubmitting {
+                        ProgressView()
+                            .scaleEffect(0.6)
+                            .frame(width: 20, height: 20)
+                    } else {
+                        Button(action: submitFeedback) {
+                            Text("Submit Feedback")
+                                .fontWeight(.bold)
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(RestorationTheme.saffron)
+                        .disabled(name.isEmpty || email.isEmpty || message.isEmpty)
+                    }
+                }
+                .padding(.top, 4)
+            }
+        }
+        .padding()
+    }
+    
+    private func resetForm() {
+        name = ""
+        email = ""
+        category = "Bug Report"
+        subject = ""
+        message = ""
+        includeDiagnostics = true
+        submissionStatus = .idle
+        isSubmitting = false
+    }
+    
+    private func getMacModel() -> String {
+        var size = 0
+        sysctlbyname("hw.model", nil, &size, nil, 0)
+        var model = [CChar](repeating: 0, count: size)
+        sysctlbyname("hw.model", &model, &size, nil, 0)
+        return String(cString: model)
+    }
+    
+    private func submitFeedback() {
+        guard !name.isEmpty, !email.isEmpty, !message.isEmpty else { return }
+        
+        isSubmitting = true
+        submissionStatus = .idle
+        
+        var payload: [String: Any] = [
+            "name": name,
+            "email": email,
+            "category": category,
+            "subject": subject.isEmpty ? "Beta Feedback: \(category)" : subject,
+            "message": message,
+            "timestamp": ISO8601DateFormatter().string(from: Date())
+        ]
+        
+        if includeDiagnostics {
+            let osVersion = ProcessInfo.processInfo.operatingSystemVersionString
+            let totalMemoryGB = ProcessInfo.processInfo.physicalMemory / (1024 * 1024 * 1024)
+            let diagnostics: [String: String] = [
+                "app_version": "1.0.0 Beta (Build 1)",
+                "macos_version": osVersion,
+                "mac_model": getMacModel(),
+                "total_ram": "\(totalMemoryGB) GB"
+            ]
+            payload["diagnostics"] = diagnostics
+        }
+        
+        guard let url = URL(string: "https://feedback.sangeet.app/api/submit") else {
+            isSubmitting = false
+            submissionStatus = .failure("Internal Error: Invalid Submission URL")
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: payload, options: [])
+        } catch {
+            isSubmitting = false
+            submissionStatus = .failure("Failed to encode payload: \(error.localizedDescription)")
+            return
+        }
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                isSubmitting = false
+                
+                if let error = error {
+                    submissionStatus = .failure("Network connection failed: \(error.localizedDescription)")
+                    return
+                }
+                
+                guard let httpResponse = response as? HTTPURLResponse else {
+                    submissionStatus = .failure("Server returned an invalid response.")
+                    return
+                }
+                
+                if (200...299).contains(httpResponse.statusCode) {
+                    withAnimation {
+                        submissionStatus = .success
+                    }
+                } else {
+                    submissionStatus = .failure("Server returned error code: \(httpResponse.statusCode)")
+                }
+            }
+        }.resume()
+    }
+}
+#endif
 

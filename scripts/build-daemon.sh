@@ -13,6 +13,14 @@ echo "Workspace:  $WORKSPACE_DIR"
 echo "Inference:  $INFERENCE_DIR"
 echo "=================================================="
 
+# Parse command line arguments
+ONLY_COPY=false
+for arg in "$@"; do
+    if [ "$arg" = "--only-copy" ]; then
+        ONLY_COPY=true
+    fi
+done
+
 # Check if CONFIGURATION env var is provided by Xcode, default to Debug
 CONFIG="${CONFIGURATION:-Debug}"
 echo "Build Configuration: $CONFIG"
@@ -24,21 +32,26 @@ cd "${INFERENCE_DIR}"
 NEEDS_BUILD=false
 BINARY_PATH="dist/sangeet-inference/sangeet-inference"
 
-if [ ! -f "${BINARY_PATH}" ]; then
-    echo "Compiled binary not found. Triggering fresh compile..."
-    NEEDS_BUILD=true
-elif [ "$CONFIG" = "Release" ]; then
-    echo "Release configuration detected. Triggering forced recompilation..."
-    NEEDS_BUILD=true
+if [ "$ONLY_COPY" = true ]; then
+    echo "Only-copy flag detected. Skipping compile check and PyInstaller compilation."
+    NEEDS_BUILD=false
 else
-    # Check if pyproject.toml is newer than the binary
-    if [ "pyproject.toml" -nt "${BINARY_PATH}" ]; then
-        echo "pyproject.toml modified since last build. Recompiling..."
+    if [ ! -f "${BINARY_PATH}" ]; then
+        echo "Compiled binary not found. Triggering fresh compile..."
         NEEDS_BUILD=true
-    # Check if any python file in sangeet_inference is newer than the binary
-    elif [ -n "$(find sangeet_inference -name "*.py" -newer "${BINARY_PATH}" 2>/dev/null)" ]; then
-        echo "Python source files modified since last build. Recompiling..."
+    elif [ "$CONFIG" = "Release" ]; then
+        echo "Release configuration detected. Triggering forced recompilation..."
         NEEDS_BUILD=true
+    else
+        # Check if pyproject.toml is newer than the binary
+        if [ "pyproject.toml" -nt "${BINARY_PATH}" ]; then
+            echo "pyproject.toml modified since last build. Recompiling..."
+            NEEDS_BUILD=true
+        # Check if any python file in sangeet_inference is newer than the binary
+        elif [ -n "$(find sangeet_inference -name "*.py" -newer "${BINARY_PATH}" 2>/dev/null)" ]; then
+            echo "Python source files modified since last build. Recompiling..."
+            NEEDS_BUILD=true
+        fi
     fi
 fi
 
@@ -118,6 +131,12 @@ if [ -n "${BUILT_PRODUCTS_DIR}" ] && [ -n "${PRODUCT_NAME}" ]; then
     cp "dist/sangeet-inference/sangeet-inference" "${TARGET_RESOURCES_DIR}/sangeet-inference"
     # Copy the entire internal dependencies directory to Resources/_internal
     cp -R "dist/sangeet-inference/_internal" "${TARGET_RESOURCES_DIR}/_internal"
+
+    # Copy onboarding sample files
+    echo "Embedding onboarding sample files into app bundle..."
+    cp "${WORKSPACE_DIR}/eval/corpus/real_test_vocal_rafi.wav" "${TARGET_RESOURCES_DIR}/noisy_playback.wav"
+    cp "${WORKSPACE_DIR}/eval/corpus/real_test_sitar_ravi.wav" "${TARGET_RESOURCES_DIR}/scratchy_classical.wav"
+    cp "${WORKSPACE_DIR}/eval/corpus/real_test_orchestra_burman.wav" "${TARGET_RESOURCES_DIR}/muffled_tape.wav"
 
     # Verify and sign inside the final app bundle to satisfy Gatekeeper
     echo "Signing embedded binaries in final app bundle..."

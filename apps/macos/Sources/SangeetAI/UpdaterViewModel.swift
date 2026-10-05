@@ -12,6 +12,13 @@ public final class UpdaterViewModel: NSObject, ObservableObject {
     @Published public var canCheckForUpdates = false
     
     public override init() {
+        #if BETA
+        // Register daily update check default (86,400 seconds / 1 day) for beta channel
+        UserDefaults.standard.register(defaults: [
+            "SUScheduledCheckInterval": 86400
+        ])
+        #endif
+        
         // Instantiate the SPUStandardUpdaterController with default driver delegates
         self.updaterController = SPUStandardUpdaterController(
             startingUpdater: true,

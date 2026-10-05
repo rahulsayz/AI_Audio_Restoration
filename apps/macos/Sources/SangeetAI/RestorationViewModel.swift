@@ -204,6 +204,50 @@ public final class RestorationViewModel: ObservableObject {
     }
     
     #if DEBUG
+    public static func makeLoadedPreviewMock() -> RestorationViewModel {
+        let mockVM = RestorationViewModel()
+        
+        var analysis = SangeetV1AnalysisResult()
+        analysis.features.sampleRate = 44100
+        analysis.features.channels = 2
+        analysis.features.durationS = 212.0
+        analysis.features.snrEstimateDb = 24.5
+        analysis.features.hum50HzPresent = true
+        analysis.features.clickRatePerS = 1.2
+        analysis.features.hfRolloffHz = 5500.0
+        
+        var recipe = SangeetV1RestorationRecipe()
+        var stage1 = SangeetV1StageInvocation()
+        stage1.stageName = "deep_filter_net"
+        stage1.strength = 0.4
+        var stage2 = SangeetV1StageInvocation()
+        stage2.stageName = "declick"
+        stage2.strength = 0.6
+        recipe.stages = [stage1, stage2]
+        analysis.suggestedRecipe = recipe
+        
+        mockVM.injectMockStateForPreview(
+            filename: "lata_mangeshkar_1952.mp3",
+            sampleRate: "44.1 kHz",
+            duration: "3:32",
+            analysisResult: analysis
+        )
+        return mockVM
+    }
+    
+    public static func makeProcessingPreviewMock() -> RestorationViewModel {
+        let mockVM = RestorationViewModel()
+        mockVM.injectMockStateForPreview(
+            filename: "lata_mangeshkar_1952.mp3",
+            sampleRate: "44.1 kHz",
+            duration: "3:32",
+            isProcessing: true,
+            progress: 0.47,
+            currentStage: "Removing Broadband Noise..."
+        )
+        return mockVM
+    }
+
     /// Injects custom states for SwiftUI preview rendering without touching the disk or daemon
     public func injectMockStateForPreview(
         filename: String,

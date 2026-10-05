@@ -12,6 +12,9 @@ struct SangeetAIApp: App {
     // App storage binding for first launch telemetry consent sheet
     @AppStorage("SAITelemetryConsentShown") private var consentShown = false
     
+    // App storage binding for beta onboarding completed state
+    @AppStorage("SAIOnboardingCompleted") private var onboardingCompleted = false
+    
     init() {
         // Register native Objective-C/Cocoa exception crash monitor
         TelemetryManager.registerCrashHandler()
@@ -41,12 +44,15 @@ struct SangeetAIApp: App {
                 .frame(minWidth: 800, minHeight: 600)
                 .frame(maxWidth: 800, maxHeight: 600)
                 .sheet(isPresented: Binding(
-                    get: { !consentShown },
+                    get: { !onboardingCompleted },
                     set: { _ in }
                 )) {
-                    TelemetryConsentView(isPresented: Binding(
-                        get: { !consentShown },
-                        set: { consentShown = !$0 }
+                    OnboardingView(viewModel: viewModel, isPresented: Binding(
+                        get: { !onboardingCompleted },
+                        set: {
+                            onboardingCompleted = !$0
+                            consentShown = !$0
+                        }
                     ))
                 }
         }

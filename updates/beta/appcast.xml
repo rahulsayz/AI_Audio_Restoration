@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>Sangeet AI Beta Updates</title>
+    <link>https://updates.sangeet.app/beta/appcast.xml</link>
+    <description>Most recent updates for Sangeet AI Beta Channel (Indian Music AI Restoration).</description>
+    <language>en</language>
+    
+    <item>
+      <title>Version 1.0.0 Beta</title>
+      <description><![CDATA[
+        <ul>
+          <li>Initial Beta release of Sangeet AI for private testers.</li>
+          <li>Includes native SwiftUI UI Dashboard and Audio Engine integrations.</li>
+          <li>Features native in-app feedback channel connected straight to beta@sangeet.app.</li>
+          <li>Optimized DeepFilterNet 3 and clicks restoration stages.</li>
+        </ul>
+      ]]></description>
+      <pubDate>Sun, 17 May 2026 21:00:00 +0530</pubDate>
+      <sparkle:releaseNotesLink>https://updates.sangeet.app/release-notes/template.html</sparkle:releaseNotesLink>
+      <enclosure 
+        url="https://updates.sangeet.app/beta/builds/SangeetAI-1.0.0-Beta.dmg" 
+        sparkle:version="1.0.0" 
+        sparkle:shortVersionString="1.0.0" 
+        sparkle:os="macos"
+        sparkle:edSignature="BxyLXKvOfd5q/BhtyB+rQB/fhWpNQ0tKp7aWoxwQEgMRk5md2SnrsauZHcXTMC7PK0wQsONhres8Z2Y/Cq+9Cg==" 
+        length="0" 
+        type="application/octet-stream" 
+      />
+    </item>
+    
+  </channel>
+</rss>

@@ -16,6 +16,7 @@
 		11A0009D2C4B7D26008E1A0F /* StackedWaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A0009C2C4B7D26008E1A0F /* StackedWaveformView.swift */; };
 		11A0009F2C4B7D26008E1A0F /* SpectrumVisualizerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A0009E2C4B7D26008E1A0F /* SpectrumVisualizerView.swift */; };
 		11A000A22C4B7D26008E1A0F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A000A12C4B7D26008E1A0F /* SettingsView.swift */; };
+		11A000E22C4B7D26008E1A0F /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A000E12C4B7D26008E1A0F /* OnboardingView.swift */; };
 		11A000A42C4B7D26008E1A0F /* UpdaterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A000A32C4B7D26008E1A0F /* UpdaterViewModel.swift */; };
 		11A000A62C4B7D26008E1A0F /* TelemetryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A000A52C4B7D26008E1A0F /* TelemetryManager.swift */; };
 		11A000152C4B7D26008E1A0F /* SangeetAITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11A000062C4B7D26008E1A0F /* SangeetAITests.swift */; };
@@ -43,6 +44,7 @@
 		11A0009C2C4B7D26008E1A0F /* StackedWaveformView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StackedWaveformView.swift; sourceTree = "<group>"; };
 		11A0009E2C4B7D26008E1A0F /* SpectrumVisualizerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpectrumVisualizerView.swift; sourceTree = "<group>"; };
 		11A000A12C4B7D26008E1A0F /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		11A000E12C4B7D26008E1A0F /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		11A000A32C4B7D26008E1A0F /* UpdaterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdaterViewModel.swift; sourceTree = "<group>"; };
 		11A000A52C4B7D26008E1A0F /* TelemetryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryManager.swift; sourceTree = "<group>"; };
 		11A000062C4B7D26008E1A0F /* SangeetAITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SangeetAITests.swift; sourceTree = "<group>"; };
@@ -89,6 +91,7 @@
 				11A0009C2C4B7D26008E1A0F /* StackedWaveformView.swift */,
 				11A0009E2C4B7D26008E1A0F /* SpectrumVisualizerView.swift */,
 				11A000A12C4B7D26008E1A0F /* SettingsView.swift */,
+				11A000E12C4B7D26008E1A0F /* OnboardingView.swift */,
 				11A000A32C4B7D26008E1A0F /* UpdaterViewModel.swift */,
 				11A000A52C4B7D26008E1A0F /* TelemetryManager.swift */,
 			);
@@ -204,6 +207,7 @@
 				11A0009D2C4B7D26008E1A0F /* StackedWaveformView.swift in Sources */,
 				11A0009F2C4B7D26008E1A0F /* SpectrumVisualizerView.swift in Sources */,
 				11A000A22C4B7D26008E1A0F /* SettingsView.swift in Sources */,
+				11A000E22C4B7D26008E1A0F /* OnboardingView.swift in Sources */,
 				11A000A42C4B7D26008E1A0F /* UpdaterViewModel.swift in Sources */,
 				11A000A62C4B7D26008E1A0F /* TelemetryManager.swift in Sources */,
 			);
@@ -232,7 +236,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/../../scripts/build-daemon.sh\"\n";
+			shellScript = "if [ \"\${ONLY_COPY}\" = \"1\" ]; then\n  \"\${SRCROOT}/../../scripts/build-daemon.sh\" --only-copy\nelse\n  \"\${SRCROOT}/../../scripts/build-daemon.sh\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -322,6 +326,41 @@
 			};
 			name = Release;
 		};
+		11A000B22C4B7D26008E1A0F /* Beta */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_ACTUAL = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Beta;
+		};
 		11A000732C4B7D26008E1A0F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -380,6 +419,36 @@
 			};
 			name = Release;
 		};
+		11A000B42C4B7D26008E1A0F /* Beta */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
+				CODE_SIGN_ENTITLEMENTS = Sources/SangeetAI/SangeetAI.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = "";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				INFOPLIST_KEY_SUFeedURL = "https://updates.sangeet.app/beta/appcast.xml";
+				INFOPLIST_KEY_SUPublicEDKey = "thhl0WF2JAWTfEHllsA84pVyObZ+ilt+hORgW+5Z+/k=";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ai.sangeet.SangeetAI.beta;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = BETA;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.10;
+			};
+			name = Beta;
+		};
 		11A000752C4B7D26008E1A0F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -414,6 +483,23 @@
 			};
 			name = Release;
 		};
+		11A000B62C4B7D26008E1A0F /* Beta */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ai.sangeet.SangeetAITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.10;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SangeetAI.app/Contents/MacOS/SangeetAI";
+			};
+			name = Beta;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -422,6 +508,7 @@
 			buildConfigurations = (
 				11A000732C4B7D26008E1A0F /* Debug */,
 				11A000742C4B7D26008E1A0F /* Release */,
+				11A000B42C4B7D26008E1A0F /* Beta */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -431,6 +518,7 @@
 			buildConfigurations = (
 				11A000752C4B7D26008E1A0F /* Debug */,
 				11A000762C4B7D26008E1A0F /* Release */,
+				11A000B62C4B7D26008E1A0F /* Beta */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -440,6 +528,7 @@
 			buildConfigurations = (
 				11A000712C4B7D26008E1A0F /* Debug */,
 				11A000722C4B7D26008E1A0F /* Release */,
+				11A000B22C4B7D26008E1A0F /* Beta */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
