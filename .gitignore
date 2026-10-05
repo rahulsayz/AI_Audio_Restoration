@@ -58,7 +58,14 @@ services/inference/sangeet_inference/proto/*_pb2_grpc.py
 packages/audio-engine/Sources/AudioEngine/Generated/
 
 # Large Audio Datasets and Reports
-eval/corpus/*
+eval/corpus/**
 !eval/corpus/.gitkeep
 eval/reports/*.json
 eval/reports/*.md
+
+# Audio files (never commit binary audio to repo)
+*.wav
+*.mp3
+*.flac
+*.m4a
+*.aiff
